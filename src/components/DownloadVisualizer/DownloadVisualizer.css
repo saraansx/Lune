@@ -1,0 +1,112 @@
+.download-visualizer-container {
+    position: fixed;
+    bottom: 90px; /* Above player bar */
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+    pointer-events: none; /* Let clicks pass through to underlying elements */
+}
+
+.download-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #141414; /* Very dark background to match the image */
+    border: 1px solid var(--card-hover);
+    padding: 10px 14px;
+    border-radius: 12px;
+    width: 250px; /* Compact width */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.3s ease-out;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+}
+
+.download-complete {
+    background: #141414;
+    border-color: var(--card-hover);
+}
+
+.dl-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #222222; /* Slightly lighter inner box */
+    flex-shrink: 0;
+}
+
+.dl-icon {
+    color: #e0e0e0;
+}
+
+.dl-icon.success {
+    color: #e0e0e0;
+}
+
+.dl-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+    padding-right: 2px;
+}
+
+.dl-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.dl-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #f0f0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dl-percent {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888888;
+    text-align: right;
+    min-width: 32px;
+}
+
+.dl-progress-bar-bg {
+    height: 3px;
+    width: 100%;
+    background: #333333;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.dl-progress-bar-fill {
+    height: 100%;
+    background: #dddddd;
+    border-radius: 2px;
+    transition: width 0.1s linear;
+}
+
+.download-complete .dl-progress-bar-fill {
+    background: #dddddd;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}

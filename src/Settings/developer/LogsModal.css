@@ -1,0 +1,195 @@
+.logs-modal-overlay {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: logsFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes logsFadeIn {
+    from { opacity: 0; transform: scale(1.05); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.logs-modal-window {
+    width: 680px;
+    height: 500px;
+    background: rgba(13, 17, 23, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logs-modal-window.maximized {
+    width: 96vw;
+    height: 94vh;
+    border-radius: 12px;
+}
+
+.logs-modal-header {
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logs-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.2px;
+}
+
+.logs-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.logs-header-actions button {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.logs-header-actions button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.logs-header-actions button.close-btn:hover {
+    background: rgba(244, 63, 94, 0.2);
+    color: #fb7185;
+}
+
+.logs-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Segoe UI Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Scrollbar for Logs */
+.logs-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.logs-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.logs-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.logs-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.log-entry {
+    margin-bottom: 6px;
+    display: flex;
+    gap: 16px;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+.log-entry:hover {
+    opacity: 1;
+}
+
+.log-time {
+    color: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    font-size: 10px;
+    padding-top: 2px;
+}
+
+.log-msg {
+    color: rgba(255, 255, 255, 0.8);
+    word-break: break-all;
+}
+
+.log-entry.error .log-msg {
+    color: #ff7b72;
+}
+
+.no-logs {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.logs-footer {
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.logs-footer button {
+    padding: 7px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    letter-spacing: 0.1px;
+}
+
+.logs-footer button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.logs-footer button:active {
+    transform: translateY(0);
+}
+
+.logs-footer-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Clear button (destructive action) */
+.logs-footer button:last-child:hover {
+    background: rgba(248, 81, 73, 0.12);
+    border-color: rgba(248, 81, 73, 0.3);
+    color: #ff9d94;
+}

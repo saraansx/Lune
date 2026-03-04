@@ -1,0 +1,12 @@
+.developer-card {
+    margin-top: 16px;
+}
+
+.lune-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.lune-btn-secondary:active {
+    transform: scale(0.98);
+}

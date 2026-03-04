@@ -1,0 +1,336 @@
+/* ─── Overlay ─────────────────────────────────────────────── */
+.create-playlist-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    animation: overlayFadeIn 0.3s ease forwards;
+}
+
+@keyframes overlayFadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* ─── Modal ───────────────────────────────────────────────── */
+.create-playlist-modal {
+    background: #0a0b0f;
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    width: 440px;
+    max-width: 90vw;
+    padding: 32px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(var(--text-main-rgb), 0.02);
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+    animation: modalSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.05s;
+}
+
+@keyframes modalSlideIn {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ─── Header ──────────────────────────────────────────────── */
+.create-playlist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.create-playlist-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.modal-close-btn {
+    background: rgba(var(--text-main-rgb), 0.06);
+    border: none;
+    color: #999;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+    background: rgba(var(--text-main-rgb), 0.12);
+    color: var(--text-main);
+    transform: rotate(90deg);
+}
+
+/* ─── Artwork Picker ──────────────────────────────────────── */
+.artwork-picker {
+    width: 140px;
+    height: 140px;
+    border-radius: 8px;
+    background: rgba(var(--text-main-rgb), 0.04);
+    border: 2px dashed var(--hover-bg, rgba(var(--text-main-rgb), 0.7));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto 24px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.artwork-picker:hover {
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background: rgba(var(--accent-rgb), 0.08);
+    transform: scale(1.02);
+}
+
+.artwork-picker.has-image {
+    border: none;
+}
+
+.artwork-picker .artwork-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.artwork-picker .artwork-placeholder-icon {
+    color: rgba(var(--text-main-rgb), 0.25);
+    margin-bottom: 8px;
+    transition: color 0.2s;
+}
+
+.artwork-picker:hover .artwork-placeholder-icon {
+    color: rgba(var(--accent-rgb), 0.6);
+}
+
+.artwork-picker .artwork-placeholder-text {
+    font-size: 10px;
+    color: rgba(var(--text-main-rgb), 0.85);
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.artwork-picker:hover .artwork-placeholder-text {
+    color: var(--accent-main);
+}
+
+/* Hover overlay for images */
+.artwork-picker.has-image::after {
+    content: 'Change';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 6px;
+}
+
+.artwork-picker.has-image:hover::after {
+    opacity: 1;
+}
+
+/* ─── Form Fields ─────────────────────────────────────────── */
+.create-playlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(var(--text-main-rgb), 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.form-field input,
+.form-field textarea {
+    background: var(--card-hover);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    resize: none;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: rgba(var(--text-main-rgb), 0.85);
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background: rgba(var(--text-main-rgb), 0.07);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+}
+
+.form-field textarea {
+    min-height: 72px;
+}
+
+/* ─── Actions ─────────────────────────────────────────────── */
+.create-playlist-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid var(--hover-bg, rgba(var(--text-main-rgb), 0.7));
+    color: var(--text-dim);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    border-color: rgba(var(--text-main-rgb), 0.25);
+    color: var(--text-main);
+}
+
+.btn-create {
+    background: var(--accent-main);
+    border: none;
+    color: var(--text-main);
+    padding: 10px 28px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+}
+
+.btn-create:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-create:active {
+    transform: translateY(0);
+}
+
+.btn-create:disabled {
+    opacity: 0.85;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ─── Loading State (+ button spinner) ────────────────────── */
+.add-btn.loading {
+    pointer-events: none;
+    position: relative;
+}
+
+.add-btn.loading svg {
+    opacity: 0;
+}
+
+.add-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(var(--text-main-rgb), 0.15);
+    border-top-color: var(--accent-main);
+    border-radius: 50%;
+    animation: btnSpin 0.6s linear infinite;
+}
+
+@keyframes btnSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ─── Modal Spinner ───────────────────────────────────────── */
+.spinner {
+    width: 16px;
+    height: 16px;
+    animation: rotate 2s linear infinite;
+    transform-origin: center center;
+    display: block;
+}
+
+.spinner .path {
+    stroke: var(--text-main);
+    stroke-width: 4px;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}

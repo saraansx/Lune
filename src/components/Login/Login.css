@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════════
+   LUNE LOGIN — Premium Aesthetic
+   ═══════════════════════════════════════════ */
+
+.login-scene {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* ─── Background ─── */
+.scene-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: none;
+}
+
+/* ─── Center Layout ─── */
+.login-center {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.moon-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    margin-bottom: 24px;
+    animation: float 6s ease-in-out infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.moon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: all 0.5s ease;
+    user-select: none;
+    pointer-events: none;
+}
+
+.moon-icon:hover .moon-img {
+    transform: scale(1.05);
+}
+
+/* ─── Typography ─── */
+.brand-title {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    text-indent: 0.5em;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.brand-tagline {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    color: rgba(var(--text-main-rgb), 0.85);
+    margin-bottom: 0;
+}
+
+.brand-description {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: rgba(var(--text-main-rgb), 0.15);
+    margin-top: 6px;
+    max-width: 240px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ─── Separator ─── */
+.line-sep {
+    width: 28px;
+    height: 1px;
+    background: var(--card-hover);
+    margin: 32px 0;
+}
+
+/* ─── Connect Button ─── */
+.connect-btn {
+    width: 260px;
+    padding: 13px 22px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-radius: 12px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.connect-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-dim);
+    transition: color 0.4s ease;
+    flex-shrink: 0;
+}
+
+.connect-btn:hover {
+    background: var(--card-hover);
+    border-color: var(--hover-bg, rgba(var(--text-main-rgb), 0.7));
+    box-shadow: var(--shadow-luxe);
+    color: var(--text-main);
+    transform: translateY(-2px);
+}
+
+.connect-btn:hover svg {
+    color: #1DB954; /* Spotify Brand Green for hover */
+}
+
+.connect-btn:active {
+    transform: scale(0.98) translateY(0);
+    transition-duration: 0.1s;
+}
+
+.connect-btn:disabled {
+    opacity: 0.8;
+    cursor: wait;
+    transform: none !important;
+}
+
+.connect-btn.loading {
+    pointer-events: none;
+}
+
+.connect-btn.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+/* ─── Status ─── */
+.status-msg {
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    padding: 8px 20px;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+    animation: fadeUp 0.3s ease;
+}
+
+.status-msg.success {
+    color: rgba(210, 210, 210, 0.85);
+    background: rgba(var(--text-main-rgb), 0.04);
+    border: 1px solid var(--card-border);
+}
+
+.status-msg.error {
+    color: rgba(196, 120, 120, 0.85);
+    background: rgba(196, 120, 120, 0.06);
+    border: 1px solid rgba(196, 120, 120, 0.1);
+}
+
+.login-error-msg {
+    margin-top: 24px;
+    font-size: 11px;
+    color: #e07a7a;
+    background: rgba(224, 122, 122, 0.05);
+    border: 1px solid rgba(224, 122, 122, 0.15);
+    padding: 10px 20px;
+    border-radius: 8px;
+    max-width: 260px;
+    text-align: center;
+    animation: fadeUp 0.4s ease;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 0 rgba(226, 218, 228, 0));
+    }
+
+    50% {
+        transform: translateY(-8px);
+        filter: drop-shadow(0 0 8px rgba(226, 218, 228, 0.05));
+    }
+}
+
+/* ─── Footer ─── */
+.login-footer {
+    position: absolute;
+    bottom: 24px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: rgba(var(--text-main-rgb), 0.85);
+    text-transform: uppercase;
+    z-index: 2;
+    pointer-events: none;
+    user-select: none;
+    font-family: inherit;
+}

@@ -1,0 +1,138 @@
+.settings-account-card {
+    padding: 24px 0;
+    margin-bottom: 24px;
+}
+
+.settings-account-header {
+    margin-bottom: 24px;
+}
+
+.settings-account-title {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text-main);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.01em;
+}
+
+.settings-account-description {
+    font-size: 0.85rem;
+    color: var(--text-muted, var(--text-dim));
+    margin: 0;
+    opacity: 0.5;
+}
+
+.account-profile-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--text-main-rgb), 0.02);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    margin-bottom: 20px;
+}
+
+.account-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.account-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--theme-secondary, #333);
+    color: var(--text-main);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-main);
+}
+
+.account-status {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted, var(--text-dim));
+    opacity: 0.6;
+}
+
+.account-logout-btn {
+    background: var(--card-hover);
+    border: 1px solid var(--hover-bg, rgba(var(--text-main-rgb), 0.1));
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.account-logout-btn:hover {
+    background: var(--hover-bg, rgba(var(--text-main-rgb), 0.1));
+    border-color: rgba(var(--text-main-rgb), 0.2);
+}
+
+.settings-disclaimer {
+    background: rgba(231, 76, 60, 0.04);
+    border: 1px solid rgba(231, 76, 60, 0.08);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.disclaimer-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #e74c3c;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+}
+
+.settings-disclaimer p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-muted, var(--text-dim));
+    opacity: 0.7;
+}
+
+.account-loading {
+    padding: 30px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted, var(--text-dim));
+    opacity: 0.4;
+}
+
+.account-error {
+    text-align: center;
+    padding: 30px 0;
+    color: #e74c3c;
+    font-size: 0.9rem;
+}

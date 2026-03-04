@@ -1,0 +1,516 @@
+.about-lune-card {
+    position: relative;
+}
+
+/* Nav row with chevron */
+.about-nav-row {
+    transition: background 0.15s ease;
+}
+
+.about-nav-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+}
+
+.about-chevron {
+    color: rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.about-nav-row:hover .about-chevron {
+    color: rgba(255, 255, 255, 0.7);
+    transform: translateX(3px);
+}
+
+/* ── Modal ── */
+.about-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: about-fade-in 0.2s ease;
+}
+
+@keyframes about-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.about-modal-glass {
+    position: relative;
+    background: rgba(18, 18, 24, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    width: 460px;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: about-slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.about-modal-glass--commits {
+    width: 500px; /* Slightly wider for commits */
+}
+
+/* Inner scroll container */
+.about-modal-scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 36px 32px 28px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.about-modal-glass--commits .about-modal-scroll {
+    align-items: flex-start; /* Left align title and list for commits */
+}
+
+@keyframes about-slide-up {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Scroll inner scrollbar */
+.about-modal-scroll::-webkit-scrollbar {
+    width: 3px;
+}
+.about-modal-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.about-modal-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.about-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.about-modal-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.about-modal-close svg {
+    width: 14px;
+    height: 14px;
+}
+
+.about-modal-logo-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.about-modal-logo {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    border-radius: 22px;
+    margin-bottom: 4px;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.about-modal-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+    letter-spacing: -0.3px;
+}
+
+.about-modal-version {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.35);
+    background: rgba(255,255,255,0.05);
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.about-modal-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    line-height: 1.6;
+    margin: 6px 0 0;
+    max-width: 280px;
+}
+
+.about-modal-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.07);
+    margin: 12px 0 8px;
+}
+
+.about-modal-meta {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.about-meta-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 500;
+}
+
+.about-meta-value {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+}
+
+.about-meta-link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #5c8deb;
+    text-decoration-color: rgba(92, 141, 235, 0.4);
+    text-underline-offset: 3px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.about-meta-link:hover {
+    color: #7bafff;
+    text-decoration-color: rgba(123, 175, 255, 0.8);
+}
+
+/* ── ArchiveTune Style Developer Card ── */
+.about-credits-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.03); /* Subtle translucent back to match the theme */
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    box-sizing: border-box;
+}
+
+.about-credits-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.05); /* Optional subtle border */
+}
+
+.about-credits-card-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    flex: 1; /* Take up available space to push socials to the right */
+}
+
+.about-credits-card-name {
+    font-size: 0.95rem;
+    color: #f0f0f0;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.about-credits-card-desc {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45); /* Soft gray matching rest of the modal */
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.about-credits-card-socials {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.about-credits-card-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: normal;
+}
+
+.about-credits-card-btn svg {
+    margin: 0;
+}
+
+.about-credits-card-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.about-credits-card-btn:active {
+    transform: scale(0.95);
+}
+
+/* ── License Section ── */
+.about-license-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.about-license-heading {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-left: 2px;
+}
+
+.about-license-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 14px;
+    height: 180px;
+    overflow-y: auto;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    box-sizing: border-box;
+    backdrop-filter: blur(4px);
+}
+
+/* Custom Scrollbar */
+.about-license-box::-webkit-scrollbar {
+    width: 4px;
+}
+
+.about-license-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.about-license-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+
+.about-license-text {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+    text-align: justify;
+}
+
+/* ── Footer ── */
+.about-modal-footer {
+    margin-top: 18px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.25);
+    text-align: center;
+    letter-spacing: 0.3px;
+    font-weight: 400;
+}
+
+.about-footer-heart {
+    color: rgba(220, 80, 80, 0.6);
+    font-size: 0.72rem;
+}
+
+/* ── Project Link Buttons ── */
+.about-modal-links {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    justify-content: center;
+}
+
+.about-modal-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.2px;
+}
+
+.about-modal-link-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.85);
+    transform: translateY(-1px);
+}
+
+.about-modal-link-btn--discord:hover {
+    background: rgba(88, 101, 242, 0.15);
+    border-color: rgba(88, 101, 242, 0.35);
+    color: rgba(180, 185, 255, 0.9);
+}
+
+.about-meta-link--discord {
+    color: rgba(114, 137, 218, 0.8) !important;
+}
+
+.about-meta-link--discord:hover {
+    color: rgba(150, 170, 255, 1) !important;
+}
+/* ── Commit History ── */
+.about-commits-section {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.about-commits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2px;
+}
+
+.about-commits-heading {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.about-commits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 4px 16px;
+    box-sizing: border-box;
+}
+
+.about-commit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.about-commit-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+}
+
+.about-commit-msg {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.about-commit-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.about-commit-hash {
+    font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #5c8deb;
+}
+
+.about-commits-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 30px 0;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.75rem;
+    width: 100%;
+}
+
+.about-commits-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #5c8deb;
+    border-radius: 50%;
+    animation: about-spin 0.8s linear infinite;
+}
+
+@keyframes about-spin {
+    to { transform: rotate(360deg); }
+}

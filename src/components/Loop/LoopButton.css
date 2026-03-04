@@ -1,0 +1,32 @@
+.loop-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.loop-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.loop-btn.active {
+    color: var(--primary-color); 
+}
+
+.loop-dot-indicator {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--accent-main); /* Accent Color */
+    position: absolute;
+    bottom: 2px;
+}

@@ -1,0 +1,342 @@
+.sidebar {
+    width: 280px;
+    height: 100%;
+    background: rgba(8, 8, 10, 0.5);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    box-sizing: border-box;
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.sidebar.collapsed {
+    width: 72px;
+    /* Collapsed width */
+    padding: 12px 8px;
+    /* Reduce padding */
+}
+
+/* Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: color 0.2s;
+}
+
+.header-left:hover {
+    color: var(--text-main);
+}
+
+.sidebar.collapsed .header-left {
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.sidebar.collapsed .sidebar-header {
+    margin-bottom: 0px;
+    justify-content: center;
+}
+
+.library-icon {
+    flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: inherit;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.sidebar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.add-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.add-btn:hover {
+    background: var(--card-hover);
+    color: var(--text-main);
+}
+
+/* Filters */
+.library-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    margin-bottom: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.filter-pill {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-main);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 5px 13px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-pill:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.filter-pill.active {
+    background: rgba(var(--accent-rgb), 0.2);
+    color: var(--text-main);
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+}
+
+/* Library List */
+.library-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 24px;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.library-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar.collapsed .library-list::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar in collapsed mode for cleaner look */
+}
+
+.library-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.library-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Items */
+.library-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    height: 64px;
+    /* Fixed height for consistency */
+}
+
+.sidebar.collapsed .library-item {
+    justify-content: center;
+    padding: 8px 0;
+}
+
+.library-item:hover {
+    background: var(--card-hover);
+}
+
+.library-item.active {
+    background: var(--hover-bg, rgba(255, 255, 255, 0.1));
+}
+
+.library-img-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #282828;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.library-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Liked Songs Special Style */
+
+
+.downloads-wrapper {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.liked-heart {
+    font-size: 20px;
+    color: var(--text-main);
+}
+
+.library-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Enable ellipsis */
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+
+.sidebar.collapsed .library-text {
+    display: none;
+    /* Hide text in collapsed mode */
+}
+
+.library-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.library-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.library-item:hover .library-title {
+    color: var(--text-main);
+}
+
+.library-item:hover .library-subtitle {
+    color: var(--text-main);
+}
+
+/* Skeletons */
+.skeleton-item {
+    height: 64px;
+    width: 100%;
+    background: var(--card-hover);
+    border-radius: 6px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}
+
+/* Context Menu */
+.item-more-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    opacity: 0;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s, background 0.2s, color 0.2s;
+}
+
+.library-item:hover .item-more-btn,
+.library-item.context-open .item-more-btn {
+    opacity: 1;
+}
+
+.item-more-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-main);
+}
+
+.sidebar-context-menu {
+    border: 1px solid var(--glass-border);
+    background: rgba(15, 13, 20, 0.95);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar-context-menu .lune-dropdown-item {
+    font-size: 13px;
+    padding: 10px 12px;
+}
+
+.library-load-more {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.skeleton-item.small {
+    height: 40px;
+}
+
+/* Compact Mode Overrides */
+[data-density="compact"] .library-item {
+    height: 48px;
+    padding: 4px 8px;
+}
+
+[data-density="compact"] .library-img-wrapper {
+    width: 36px;
+    height: 36px;
+}
+
+[data-density="compact"] .library-title {
+    font-size: 13px;
+}
+
+[data-density="compact"] .library-subtitle {
+    font-size: 12px;
+}

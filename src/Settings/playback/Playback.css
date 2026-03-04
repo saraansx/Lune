@@ -1,0 +1,272 @@
+.settings-language-card {
+    padding: 24px 0;
+    margin-bottom: 24px;
+}
+
+.language-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--text-main-rgb), 0.015);
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--text-main-rgb), 0.025);
+    transition: background 0.2s ease;
+}
+
+.row-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0; /* Allows ellipsis/content to shrink */
+    margin-right: 16px;
+}
+
+.row-label {
+    font-size: 0.95rem;
+    color: var(--floating-text);
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted, var(--text-dim));
+    opacity: 0.5;
+}
+
+/* Custom Dropdown Styles */
+.dropdown-wrapper {
+    position: relative;
+    width: 220px;
+}
+
+.dropdown-trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--text-main-rgb), 0.04);
+    border: 1px solid rgba(var(--text-main-rgb), 0.06);
+    color: var(--floating-text);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    gap: 8px;
+}
+
+.dropdown-trigger span:first-of-type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    text-align: left;
+}
+
+.dropdown-trigger:hover {
+    background: rgba(var(--text-main-rgb), 0.08);
+    border-color: rgba(var(--text-main-rgb), 0.12);
+    transform: translateY(-1px);
+}
+
+.dropdown-trigger.active {
+    background: rgba(var(--text-main-rgb), 0.1);
+    border-color: var(--accent, #0077f9);
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15);
+}
+
+.chevron {
+    transition: transform 0.3s ease;
+    opacity: 0.6;
+}
+
+.chevron.up {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: max-content;
+    min-width: 100%;
+    max-width: 480px;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #0a0c10;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 8px;
+    z-index: var(--z-dropdown);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    animation: dropdownPop 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-menu::-webkit-scrollbar {
+    width: 5px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 6px 0;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(var(--text-main-rgb), 0.15);
+    border-radius: 10px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--text-main-rgb), 0.25);
+}
+
+@keyframes dropdownPop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: var(--text-muted, var(--text-dim));
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-item:hover {
+    background: rgba(var(--text-main-rgb), 0.06);
+    color: var(--floating-text);
+}
+
+.dropdown-item.selected {
+    background: var(--hover-bg, rgba(var(--text-main-rgb), 0.1));
+    color: var(--floating-text);
+    font-weight: 500;
+}
+
+.dropdown-trigger.danger {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.dropdown-trigger.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+.dropdown-trigger.success {
+    color: #22c55e;
+    border-color: rgba(34, 197, 94, 0.2);
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.dropdown-trigger.success:hover {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+}
+
+.settings-section-divider {
+    height: 1px;
+    background: rgba(var(--text-main-rgb), 0.05);
+    margin: 32px 16px;
+}
+
+/* Switch Toggle UI - Premium Redesign */
+.lune-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lune-switch:hover {
+    transform: scale(1.05);
+}
+
+.lune-switch:active {
+    transform: scale(0.95);
+}
+
+.lune-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.lune-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(var(--text-main-rgb), 0.1);
+    transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 30px;
+    border: 1px solid rgba(var(--text-main-rgb), 0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.lune-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #ffffff;
+    transition: .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+input:checked + .lune-switch-slider {
+    background-color: var(--accent, #0077f9);
+    border-color: rgba(var(--accent-rgb), 0.3);
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+input:checked + .lune-switch-slider:before {
+    transform: translateX(20px);
+    background-color: #ffffff;
+    box-shadow: -2px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Row Hover State for better interaction feel */
+.settings-row:hover {
+    background: rgba(var(--text-main-rgb), 0.035);
+    border-color: rgba(var(--text-main-rgb), 0.06);
+}
+

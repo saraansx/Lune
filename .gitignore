@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-electron
+release
+*.log
+.env
+.ds_store
+.vscode
+.idea
+*.sqlite
+*.sqlite-journal
+yt-cookies.txt
+downloads

@@ -1,0 +1,23 @@
+.settings-container {
+    padding: 32px 48px;
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+    color: var(--text-main);
+}
+
+.settings-content {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.settings-header {
+    margin-bottom: 32px;
+}
+
+.settings-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}

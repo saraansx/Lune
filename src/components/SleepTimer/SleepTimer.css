@@ -1,0 +1,95 @@
+.sleep-timer-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sleep-trigger {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sleep-trigger:hover,
+.sleep-trigger.dropdown-open {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sleep-trigger.timer-on {
+    color: var(--accent-main);
+}
+
+.sleep-timer-badge {
+    font-family: monospace;
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+.sleep-timer-badge.track-badge {
+    background: transparent;
+    padding: 0;
+}
+
+.sleep-trigger.timer-on .sleep-timer-badge {
+    background: var(--accent-main);
+    color: #fff;
+}
+
+.sleep-trigger.timer-on .track-badge {
+    background: transparent;
+    color: var(--accent-main);
+}
+
+.sleep-dropdown {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0px;
+    margin-right: -10px;
+    background: #181818;
+    border: 1px solid #282828;
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 140px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    animation: speedFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sleep-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+}
+
+.sleep-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sleep-item.selected {
+    color: var(--accent-main);
+}

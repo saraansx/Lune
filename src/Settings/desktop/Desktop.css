@@ -1,0 +1,4 @@
+.desktop-card {
+    position: relative;
+    z-index: var(--z-base, 1);
+}

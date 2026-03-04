@@ -1,0 +1,32 @@
+.shuffle-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: background 0.15s;
+}
+
+.shuffle-btn:hover {
+    background: rgba(var(--text-main-rgb), 0.08);
+    /* Only show hover bg if explicitly wanted */
+}
+
+
+
+.shuffle-dot-indicator {
+    position: absolute;
+    bottom: 2px;
+    width: 4px;
+    height: 4px;
+    background-color: var(--accent-main);
+    border-radius: 50%;
+    /* To sit below the icon */
+    transform: translateY(2px);
+}

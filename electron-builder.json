@@ -1,0 +1,74 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.lune.app",
+  "buildVersion": "${buildVersion}",
+  "productName": "Lune",
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "saraansx",
+      "repo": "Lune"
+    }
+  ],
+  "asar": true,
+  "asarUnpack": [
+    "**/*.node",
+    "**/node_modules/better-sqlite3/**/*",
+    "**/node_modules/yt-dlp-exec/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "src/assets/Lune.png",
+      "to": "Lune.png"
+    }
+  ],
+  "directories": {
+    "output": "release/${version}"
+  },
+  "files": [
+    "dist",
+    "dist-electron",
+    "package.json"
+  ],
+  "releaseInfo": {
+    "releaseNotesFile": "release-notes.md"
+  },
+  "win": {
+    "icon": "src/assets/Lune.png",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": false,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": true,
+    "uninstallDisplayName": "Lune (Remove all data)",
+    "include": "build/installer.nsh",
+    "license": "LicENSE",
+    "shortcutName": "Lune",
+    "runAfterFinish": false,
+    "createDesktopShortcut": false,
+    "createStartMenuShortcut": true,
+    "artifactName": "${productName}-Setup-${version}.${ext}"
+  },
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
+  },
+  "linux": {
+    "target": [
+      "AppImage"
+    ],
+    "artifactName": "${productName}-Linux-${version}.${ext}"
+  }
+}
