@@ -129,7 +129,7 @@ export function registerRPCHandlers() {
         }
 
         if (!rpc || !isReady) {
-            await initRPC();
+            initRPC();
         }
 
         const activityObj: any = {
