@@ -6,6 +6,7 @@
 
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
+!include "WinMessages.nsh"
 
 ; ── Skip the "per-user vs all-users" page, force current user ──
 !macro customInstallMode
@@ -23,6 +24,10 @@ Var CheckStartupState
 Var CheckLaunchState
 
 Function finishPageCreate
+  ; Change the "Next" button text to "Finish"
+  GetDlgItem $0 $HWNDPARENT 1
+  SendMessage $0 ${WM_SETTEXT} 0 "STR:Finish"
+
   nsDialogs::Create 1018
   Pop $0
   ${If} $0 == error
@@ -83,8 +88,8 @@ FunctionEnd
 
 !endif ; !BUILD_UNINSTALLER
 
-; ── Insert custom finish page ────────────────────────────────
-!macro customPageAfterChangeDir
+; ── Insert custom finish page AFTER installation ──────────────────
+!macro customPageAfterInstFiles
   !ifndef BUILD_UNINSTALLER
     Page custom finishPageCreate finishPageLeave
   !endif
