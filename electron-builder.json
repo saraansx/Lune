@@ -30,9 +30,6 @@
     "dist-electron",
     "package.json"
   ],
-  "releaseInfo": {
-    "releaseNotesFile": "release-notes.md"
-  },
   "win": {
     "icon": "src/assets/Lune.png",
     "target": [
@@ -58,17 +55,5 @@
     "createDesktopShortcut": false,
     "createStartMenuShortcut": true,
     "artifactName": "${productName}-Setup-${version}.${ext}"
-  },
-  "mac": {
-    "target": [
-      "dmg"
-    ],
-    "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
-  },
-  "linux": {
-    "target": [
-      "AppImage"
-    ],
-    "artifactName": "${productName}-Linux-${version}.${ext}"
   }
 }
