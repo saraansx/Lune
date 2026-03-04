@@ -184,12 +184,14 @@ async function harvestYouTubeCookies(): Promise<void> {
 
         try {
             await hiddenWin.loadURL('https://www.youtube.com');
+            await new Promise(resolve => setTimeout(resolve, 3000));
         } catch (loadErr: any) {
-            if (loadErr?.code !== 'ERR_ABORTED') throw loadErr;
+            if (loadErr?.code !== 'ERR_ABORTED') {
+                console.warn('[YtCookies] Page load failed:', loadErr);
+            }
+        } finally {
+            if (!hiddenWin.isDestroyed()) hiddenWin.destroy();
         }
-
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        hiddenWin.destroy();
 
         const cookies = await ytSession.cookies.get({ domain: '.youtube.com' });
         if (cookies.length === 0) return;
