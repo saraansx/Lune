@@ -23,9 +23,9 @@ Lune is a refined Spotify client that prioritizes aesthetics and performance. It
 <br />
 
 <div align="center">
-  <img src="src/assets/promotion/p1.png" width="32.5%" />
-  <img src="src/assets/promotion/p2.png" width="32.5%" />
-  <img src="src/assets/promotion/p3.png" width="32.5%" />
+  <img src="src/assets/Promotion/p1.png" width="32.5%" />
+  <img src="src/assets/Promotion/p2.png" width="32.5%" />
+  <img src="src/assets/Promotion/p3.png" width="32.5%" />
 </div>
 
 <br />
@@ -46,7 +46,7 @@ To build and run Lune locally on your machine:
 
 ```bash
 # 1. Clone the project
-git clone https://github.com/yourusername/lune.git
+git clone https://github.com/saraansx/Lune.git
 
 # 2. Install dependencies
 npm install
@@ -59,7 +59,7 @@ npm run dev
 
 ### ✧ Design & Assets
 
-The branding and visual identity in `src/assets/promotion` are core to the Lune experience.
+The branding and visual identity in `src/assets/Promotion` are core to the Lune experience.
 
 - **P4** ─ Primary branding and landing visual.
 - **P1 - P3** ─ Interface showcase and feature spotlights.
