@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Import all languages
+// Import all languages - Updated to force re-bundle
 import en from './en.json';
 import es from './es.json';
 import fr from './fr.json';

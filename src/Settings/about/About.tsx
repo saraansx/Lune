@@ -32,7 +32,7 @@ const CommitHistory: React.FC = () => {
         return (
             <div className="about-commits-loading">
                 <div className="about-commits-spinner" />
-                <span>{t('about.loadingCommits') || 'Fetching latest changes...'}</span>
+                <span>{t('about.loadingCommits')}</span>
             </div>
         );
     }
@@ -40,7 +40,7 @@ const CommitHistory: React.FC = () => {
     if (commits.length === 0) {
         return (
             <div className="about-commits-loading">
-                <span>{t('about.failedCommits') || 'Failed to load commit history.'}</span>
+                <span>{t('about.failedCommits')}</span>
             </div>
         );
     }
@@ -86,7 +86,7 @@ const CommitsModal: React.FC<CommitsModalProps> = ({ onClose }) => {
             <div className="about-modal-glass about-modal-glass--commits" onClick={(e) => e.stopPropagation()}>
                 <div className="about-modal-scroll">
                     <h2 className="about-modal-name" style={{ marginBottom: '12px' }}>
-                        {t('about.commitHistory') || 'Commit History'}
+                        {t('about.commitHistory')}
                     </h2>
                     <CommitHistory />
                 </div>
@@ -141,7 +141,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                 <h2 className="about-modal-name">Lune</h2>
 
                 <p className="about-modal-desc">
-                    {t('about.description') || 'An open-source Spotify client designed for performance and the ultimate listening experience.'}
+                    {t('about.description')}
                 </p>
 
                 <div className="about-modal-links">
@@ -170,17 +170,17 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                 <div className="about-modal-divider" />
 
                 <div className="about-modal-meta">
-                    <span className="about-meta-label">{t('about.version') || 'Version'}</span>
+                    <span className="about-meta-label">{t('about.version')}</span>
                     <span className="about-meta-value">{version}</span>
                 </div>
                 {build && (
                     <div className="about-modal-meta">
-                        <span className="about-meta-label">{t('about.buildNumber') || 'Build Number'}</span>
+                        <span className="about-meta-label">{t('about.buildNumber')}</span>
                         <span className="about-meta-value">{build}</span>
                     </div>
                 )}
                 <div className="about-modal-meta">
-                    <span className="about-meta-label">{t('about.license') || 'License'}</span>
+                    <span className="about-meta-label">{t('about.license')}</span>
                     <span
                         className="about-meta-value about-meta-link"
                         onClick={() => window.ipcRenderer?.invoke('open-external', 'https://github.com/saraansx/Lune?tab=GPL-3.0-1-ov-file')}
@@ -189,7 +189,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                     </span>
                 </div>
                 <div className="about-modal-meta">
-                    <span className="about-meta-label">{t('about.repository') || 'Repository'}</span>
+                    <span className="about-meta-label">{t('about.repository')}</span>
                     <span
                         className="about-meta-value about-meta-link"
                         onClick={() => window.ipcRenderer?.invoke('open-external', 'https://github.com/saraansx/Lune')}
@@ -198,7 +198,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                     </span>
                 </div>
                 <div className="about-modal-meta">
-                    <span className="about-meta-label">{t('about.bugReports') || 'Bug Reports'}</span>
+                    <span className="about-meta-label">{t('about.bugReports')}</span>
                     <span
                         className="about-meta-value about-meta-link about-meta-link--discord"
                         onClick={() => window.ipcRenderer?.invoke('open-external', 'https://discord.gg/CVQ4bxK7P6')}
@@ -213,7 +213,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                     <img src={saraansPfp} alt="Saraans" className="about-credits-card-avatar" />
                     <div className="about-credits-card-info">
                         <span className="about-credits-card-name">Saraans</span>
-                        <span className="about-credits-card-desc">{t('about.saraans.desc') || 'always on mode UwU'}</span>
+                        <span className="about-credits-card-desc">{t('about.saraans.desc')}</span>
                     </div>
                     <div className="about-credits-card-socials">
                         <button
@@ -252,7 +252,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                     <img src={krtikyPfp} alt="Krtiky" className="about-credits-card-avatar" />
                     <div className="about-credits-card-info">
                         <span className="about-credits-card-name">Krtiky</span>
-                        <span className="about-credits-card-desc">{t('about.krtiky.desc') || 'crafting the visual identity'}</span>
+                        <span className="about-credits-card-desc">{t('about.krtiky.desc')}</span>
                     </div>
                     <div className="about-credits-card-socials">
                         <button
@@ -279,14 +279,14 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                 </div>
 
                 <div className="about-license-section">
-                    <span className="about-license-heading">{t('about.licenseHeading') || 'License'}</span>
+                    <span className="about-license-heading">{t('about.licenseHeading')}</span>
                     <div className="about-license-box">
                         <pre className="about-license-text">{licenseText}</pre>
                     </div>
                 </div>
 
                 <p className="about-modal-footer">
-                    {t('about.footer') || 'Made with'} <span className="about-footer-heart">♥</span> {t('about.footerSuffix') || 'in India by Saraans'}
+                    {t('about.footer')} <span className="about-footer-heart">♥</span> {t('about.footerSuffix')}
                 </p>
                 </div>
             </div>
@@ -304,8 +304,8 @@ const About: React.FC = () => {
         <>
             <div className="settings-language-card about-lune-card">
                 <div className="settings-account-header">
-                    <h2 className="settings-account-title">{t('about.title') || 'About Lune'}</h2>
-                    <p className="settings-account-description">{t('about.sub') || 'Information about this application.'}</p>
+                    <h2 className="settings-account-title">{t('about.title')}</h2>
+                    <p className="settings-account-description">{t('about.sub')}</p>
                 </div>
 
                 <div className="language-content">
@@ -316,8 +316,8 @@ const About: React.FC = () => {
                         style={{ cursor: 'pointer' }}
                     >
                         <div className="row-info">
-                            <span className="row-label">{t('about.rowLabel') || 'About'}</span>
-                            <span className="row-sub">{t('about.rowSub') || 'Version, license, and app information.'}</span>
+                            <span className="row-label">{t('about.rowLabel')}</span>
+                            <span className="row-sub">{t('about.rowSub')}</span>
                         </div>
                         <svg
                             className="about-chevron"
@@ -341,8 +341,8 @@ const About: React.FC = () => {
                         style={{ cursor: 'pointer' }}
                     >
                         <div className="row-info">
-                            <span className="row-label">{t('about.commitHistory') || 'Commit History'}</span>
-                            <span className="row-sub">{t('about.commitsRowSub') || 'See the latest changes and development progress.'}</span>
+                            <span className="row-label">{t('about.commitHistory')}</span>
+                            <span className="row-sub">{t('about.commitsRowSub')}</span>
                         </div>
                         <svg
                             className="about-chevron"
