@@ -77,22 +77,6 @@ Lune is proudly open-source and licensed under the **[GPL-3.0 License](https://g
 
 This ensures that the project remains free and open. Any modifications or derivative works distributed to others must also be open-source and released under the same license.
 
-<br />
-
-<div align="center">
-  <h3>
-    <img src="https://raw.githubusercontent.com/saraansx/Lune/main/src/assets/Lune.png" width="35" style="vertical-align: middle; margin-right: 8px;" alt="Lune" />
-    Star History
-  </h3>
-  <a href="https://star-history.com/#saraansx/Lune&Date">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=saraansx/Lune&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=saraansx/Lune&type=Date" />
-      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=saraansx/Lune&type=Date" />
-    </picture>
-  </a>
-</div>
-
 ---
 
 <div align="center">
