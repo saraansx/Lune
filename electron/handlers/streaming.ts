@@ -141,7 +141,13 @@ export function registerStreamingHandlers() {
         try {
             const normalized = normalizeTrackForDB(track);
             const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(normalized.id);
-            if (existing) return true;
+            if (existing && existing.localPath) {
+                if (fs.existsSync(existing.localPath)) {
+                    return true;
+                } else {
+                    db.prepare('DELETE FROM downloads WHERE id = ?').run(normalized.id);
+                }
+            }
 
             const downloadFormat = store.get('downloadFormat') || 'mp4';
             const ext = downloadFormat === 'webm' ? 'webm' : 'm4a';
