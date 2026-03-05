@@ -40,20 +40,20 @@
 
 ### / Features
 
-- ✦ **Ad-Free Experience** — Enjoy uninterrupted listening with a smart, ad-free streaming engine without requiring a paid subscription.
-- ✦ **Offline Downloads** — Save any track, album, or playlist directly to your local device for high-speed, offline playback.
-- ✦ **Unified Library Management** — Create custom local playlists and seamlessly mix them with your saved Spotify collections.
-- ✦ **Hybrid Streaming Engine** — Merges Spotify's rich metadata and recommendation ecosystem with high-quality audio streams.
-- ✦ **Dynamic Audio Quality** — Automatically scales streaming quality based on your network, or force high-bitrate playback.
-- ✦ **Synced Lyrics integration** — Real-time, scrolling lyrics support powered by LRCLib so you can sing along perfectly.
-- ✦ **Pure Minimalism** — A breathtaking interface designed to stay out of your way, focusing entirely on the cover art and the music.
-- ✦ **Extensive Customization** — Tailor the app to your setup with interchangeable HSL-based accent colors and density modes.
-- ✦ **Cache & Storage Control** — Take full control of your disk space with intelligent caching and one-click data management.
-- ✦ **Desktop Optimized** — Deep OS integration including media keys, hardware acceleration, and seamless background behavior.
-- ✦ **Rich Presence** — Built-in native Discord integration to share your current track and library status with friends.
-- ✦ **Infinite Library Virtualization** — Hyper-optimized architecture that allows for buttery-smooth scrolling even with thousands of saved tracks.
-- ✦ **Global Localization** — Fully translated into multiple languages including English, Hindi, and more.
-- ✦ **Seamless Updates** — Built-in automatic updater ensures you are always running the latest and most stable version of Lune.
+- **Ad-Free Experience** — Enjoy uninterrupted listening with a smart, ad-free streaming engine without requiring a paid subscription.
+- **Offline Downloads** — Save any track, album, or playlist directly to your local device for high-speed, offline playback.
+- **Unified Library Management** — Create custom local playlists and seamlessly mix them with your saved Spotify collections.
+- **Hybrid Streaming Engine** — Merges Spotify's rich metadata and recommendation ecosystem with high-quality audio streams.
+- **Dynamic Audio Quality** — Automatically scales streaming quality based on your network, or force high-bitrate playback.
+- **Synced Lyrics integration** — Real-time, scrolling lyrics support powered by LRCLib so you can sing along perfectly.
+- **Pure Minimalism** — A breathtaking interface designed to stay out of your way, focusing entirely on the cover art and the music.
+- **Extensive Customization** — Tailor the app to your setup with interchangeable HSL-based accent colors and density modes.
+- **Cache & Storage Control** — Take full control of your disk space with intelligent caching and one-click data management.
+- **Desktop Optimized** — Deep OS integration including media keys, hardware acceleration, and seamless background behavior.
+- **Rich Presence** — Built-in native Discord integration to share your current track and library status with friends.
+- **Infinite Library Virtualization** — Hyper-optimized architecture that allows for buttery-smooth scrolling even with thousands of saved tracks.
+- **Global Localization** — Fully translated into multiple languages including English, Hindi, and more.
+- **Seamless Updates** — Built-in automatic updater ensures you are always running the latest and most stable version of Lune.
 
 <br />
 
