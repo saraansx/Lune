@@ -83,26 +83,36 @@ class SpotifyUserEndpoint {
         const items = trackData
             .filter((item: any) => item.__typename === "UserLibraryTrackResponse")
             .map((item: any) => {
-                const track = item.track;
-                const id = track._uri.split(":").pop();
+                const trackWrapper = item.track;
+                if (!trackWrapper) return null;
+
+                // New structure: track._uri + track.data.{name, albumOfTrack, artists, ...}
+                const track = trackWrapper.data || trackWrapper;
+                const uri = trackWrapper._uri || track.uri || track._uri || "";
+                const id = uri ? uri.split(":").pop() : "";
+
+                // Album: new structure uses "albumOfTrack", legacy uses "album"
+                const albumData = track.albumOfTrack || track.album;
+
                 return {
                     id,
-                    name: track.name,
-                    uri: track._uri,
+                    name: track.name || "Unknown Track",
+                    uri,
                     duration_ms: track.duration?.totalMilliseconds ?? 0,
-                    explicit: track.contentRating?.label === "EXPLICIT",
+                    explicit: track.contentRating?.label === "EXPLICIT" || track.explicit === true,
                     album: {
-                        id: track.album?.uri.split(":").pop(),
-                        name: track.album?.name,
-                        images: track.album?.coverArt?.sources ?? [],
+                        id: albumData?.uri ? albumData.uri.split(":").pop() : (albumData?.id || ""),
+                        name: albumData?.name || "Unknown Album",
+                        images: albumData?.coverArt?.sources ?? albumData?.images ?? [],
                     } as any,
                     artists: track.artists?.items?.map((artist: any) => ({
-                        id: artist.uri.split(":").pop(),
-                        name: artist.profile?.name,
-                        uri: artist.uri,
+                        id: artist.uri ? artist.uri.split(":").pop() : "",
+                        name: artist.profile?.name || artist.name || "Unknown Artist",
+                        uri: artist.uri || "",
                     })) ?? [],
-                } as Track;
-            });
+                    added_at: item.addedAt?.isoString || item.addedAt || "",
+                } as unknown as Track;
+            }).filter(Boolean);
 
         return {
             offset: pagingInfo.offset,
@@ -143,7 +153,7 @@ class SpotifyUserEndpoint {
                         persistedQuery: {
                             version: 1,
                             sha256Hash:
-                                "2de10199b2441d6e4ae875f27d2db361020c399fb10b03951120223fbed10b08",
+                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
                         },
                     },
                 },
@@ -227,7 +237,7 @@ class SpotifyUserEndpoint {
                         persistedQuery: {
                             version: 1,
                             sha256Hash:
-                                "2de10199b2441d6e4ae875f27d2db361020c399fb10b03951120223fbed10b08",
+                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
                         },
                     },
                 },
@@ -298,7 +308,7 @@ class SpotifyUserEndpoint {
                         persistedQuery: {
                             version: 1,
                             sha256Hash:
-                                "2de10199b2441d6e4ae875f27d2db361020c399fb10b03951120223fbed10b08",
+                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
                         },
                     },
                 },
