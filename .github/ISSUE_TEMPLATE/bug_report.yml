@@ -7,30 +7,65 @@ assignees:
   - saraansx
 
 body:
-  - type: textarea
+  - type: checkboxes
     attributes:
-      label: What went wrong
-      description: Describe what happened and where in Lune it occurred.
-      placeholder: Lune crashed / froze / showed wrong data when I...
-    validations:
-      required: true
+      label: Before filing
+      options:
+        - label: I have searched existing issues and this has not been reported before
+          required: true
+        - label: I am on the latest version of Lune
+          required: true
 
   - type: textarea
     attributes:
       label: Steps to reproduce
-      placeholder: |
-        1. 
-        2. 
-        3.
+      description: Walk us through exactly what you did. Skip no steps.
+      value: |
+        1. Open Lune
+        2. Navigate to '...'
+        3. Click on '...'
+        4. See error / crash
     validations:
       required: true
 
   - type: textarea
     attributes:
       label: Expected behaviour
-      placeholder: It should have...
+      description: What should have happened?
+      placeholder: Lune should have...
     validations:
       required: true
+
+  - type: textarea
+    attributes:
+      label: Actual behaviour
+      description: What happened instead?
+      placeholder: Instead, Lune...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Visual evidence
+      description: Screenshots or screen recordings that show the issue. Drag and drop directly here.
+      placeholder: Attach files by dragging and dropping or clicking here.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Open DevTools with Ctrl+Shift+I and paste any relevant console output below.
+      value: |
+        <details>
+        <summary>Console output</summary>
+
+        ```
+        paste here
+        ```
+        </details>
+    validations:
+      required: false
 
   - type: input
     attributes:
@@ -48,15 +83,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Logs
-      description: Paste any relevant console output. Open DevTools with Ctrl+Shift+I.
-      value: |
-        <details>
-        <summary>Console output</summary>
-
-        ```
-        paste here
-        ```
-        </details>
+      label: Additional context
+      description: Anything else that might help — related issues, workarounds you tried, frequency of occurrence.
     validations:
       required: false
