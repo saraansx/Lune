@@ -37,30 +37,32 @@ export class SpotifyLibraryEndpoint {
 
         const items = trackData
             .map((item: any) => {
-                // Discover track object more broadly
-                const track = item.track?.data || item.track?.track || item.track
-                    || item.itemV2?.data || item.itemV2?.track || item.item?.data || item.item?.track
-                    || (item.name ? item : null);
+                // New Spotify structure: item.track._uri + item.track.data.{name, albumOfTrack, artists, ...}
+                // Also handle legacy structure where data might be flat on item.track
+                const trackWrapper = item.track || item.itemV2 || item.item;
+                if (!trackWrapper) return null;
+
+                // The actual track metadata lives in track.data (new) or directly on track (legacy)
+                const track = trackWrapper.data || trackWrapper;
                 if (!track) return null;
 
-                const uri = track.uri || track._uri || "";
+                // URI is at trackWrapper._uri (new) or track.uri / track._uri (legacy)
+                const uri = trackWrapper._uri || track.uri || track._uri || "";
                 const id = uri ? uri.split(":").pop() : (track.id || track.trackId || "");
 
-                // Broad discovery for name
-                const name = track.name || track.title || track.data?.name || track.data?.title
-                    || track.track?.name || track.track?.title || "";
+                // Name
+                const name = track.name || track.title || "";
 
-                // Discover album data
-                const albumData = track.album?.data || track.album || track.albumOfTrack?.data || track.albumOfTrack
-                    || track.track?.album;
-                const albumImages = albumData?.images?.items?.flatMap((i: any) => i.sources)
+                // Album: new structure uses "albumOfTrack", legacy uses "album"
+                const albumData = track.albumOfTrack || track.album?.data || track.album || {};
+                const albumImages = albumData?.coverArt?.sources
+                    || albumData?.images?.items?.flatMap((i: any) => i.sources)
                     || albumData?.images?.items
                     || albumData?.images
-                    || albumData?.coverArt?.sources
                     || [];
 
-                // Discover artists
-                const artistsData = track.artists?.items || track.artists || track.track?.artists?.items || [];
+                // Artists
+                const artistsData = track.artists?.items || track.artists || [];
                 const mappedArtists = artistsData.map((artist: any) => {
                     const aData = artist?.profile || artist?.data || artist;
                     return {
@@ -77,9 +79,8 @@ export class SpotifyLibraryEndpoint {
                     duration_ms: track.duration?.totalMilliseconds
                         || track.trackDuration?.totalMilliseconds
                         || track.duration_ms
-                        || track.track?.duration?.totalMilliseconds
                         || 0,
-                    explicit: track.contentRating?.label === "EXPLICIT" || track.explicit === true || track.track?.explicit === true,
+                    explicit: track.contentRating?.label === "EXPLICIT" || track.explicit === true,
                     album: {
                         id: albumData?.uri ? albumData.uri.split(":").pop() : (albumData?.id || ""),
                         name: albumData?.name || albumData?.title || "Unknown Album",
