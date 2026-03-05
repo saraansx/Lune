@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './NowPlayingView.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import { useLanguage } from '../../context/LanguageContext';
 
 import { formatMonthlyListeners } from '../../utils/format';
@@ -21,13 +21,14 @@ const NowPlayingView: React.FC<{
     isFullscreen?: boolean;
     onArtistSelect?: (id: string | null, name: string) => void;
     onPlaylistSelect?: (id: string, isAlbum?: boolean) => void;
-}> = ({ accessToken, cookies, isFullscreen, onArtistSelect, onPlaylistSelect }) => {
+}> = ({ accessToken, cookies: _cookies, isFullscreen, onArtistSelect, onPlaylistSelect }) => {
     const {
         currentTrack,
         showFullNowPlaying: isOpen,
         setShowFullNowPlaying
     } = usePlayer();
     const { t } = useLanguage();
+    const api = useApi();
 
     const onClose = () => setShowFullNowPlaying(false);
     const [artistInfo, setArtistInfo] = useState<ArtistInfo | null>(null);
@@ -43,9 +44,7 @@ const NowPlayingView: React.FC<{
             setCanvasUrl(null);
 
             try {
-                const spDc = cookies?.find?.((c: any) => c.name === 'sp_dc')?.value;
-                const spT = cookies?.find?.((c: any) => c.name === 'sp_t')?.value;
-                const gql = new SpotifyGqlApi(accessToken, spDc, spT);
+                const gql = api;
 
                 // We'll need to fetch the track details first to get the proper Artist ID if not provided
                 let artistId = currentTrack.artists?.[0]?.id;

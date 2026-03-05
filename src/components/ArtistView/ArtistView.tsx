@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './ArtistView.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 
 interface PlatformCookie {
     domain: string;
@@ -35,8 +35,8 @@ interface ArtistViewProps {
 const ARTIST_PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiNiM2IzYjMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEyIDJhNSA1IDAgMSAxIDAgMTAgNSA1IDAgMCAxIDAtMTB6bTAgMTRjNC40MTggMCA4IDIuMjM5IDggNXYxaC0xNnYtMWMwLTIuNzYxIDMuNTgyLTUgOC01eiIvPjwvc3ZnPg==';
 
 const ArtistView: React.FC<ArtistViewProps> = ({
-    accessToken,
-    cookies,
+    accessToken: _accessToken,
+    cookies: _cookies,
     artistId,
     onBack,
     onHome,
@@ -62,9 +62,7 @@ const ArtistView: React.FC<ArtistViewProps> = ({
     const [isDownloading, setIsDownloading] = useState(false);
     const trackMenuRef = useRef<HTMLDivElement>(null);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     useEffect(() => {
         const fetchArtistDetails = async () => {
@@ -552,7 +550,7 @@ const ArtistView: React.FC<ArtistViewProps> = ({
                                         </div>
                                     </div>
                                     <div className="artist-track-info">
-                                        {track.albumArt && <img src={track.albumArt} alt={track.name} className="artist-track-image" />}
+                                        {track.albumArt && <img src={track.albumArt} alt={track.name} className="artist-track-image" loading="lazy" />}
                                         <div className="artist-track-name" style={{ display: 'flex', alignItems: 'center' }}>
                                             {track.name}
                                             <DownloadIndicator trackId={track.id} />
@@ -704,6 +702,7 @@ const ArtistView: React.FC<ArtistViewProps> = ({
                                             src={release.images[0].url}
                                             alt={release.name}
                                             className="artist-release-img"
+                                            loading="lazy"
                                         />
                                     )}
                                     <div className="artist-release-info">
@@ -734,6 +733,7 @@ const ArtistView: React.FC<ArtistViewProps> = ({
                                             src={release.images[0].url}
                                             alt={release.name}
                                             className="artist-release-img"
+                                            loading="lazy"
                                         />
                                     )}
                                     <div className="artist-release-info">
@@ -764,6 +764,7 @@ const ArtistView: React.FC<ArtistViewProps> = ({
                                             src={artist.image}
                                             alt={artist.name}
                                             className="artist-release-img circle"
+                                            loading="lazy"
                                         />
                                     )}
                                     <div className="artist-release-info" style={{ textAlign: 'center' }}>

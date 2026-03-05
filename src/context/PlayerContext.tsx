@@ -267,10 +267,12 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const url = await window.ipcRenderer.invoke('get-stream-url', track.name, track.artist, track.id, false);
             if (isCancelled) return;
             if (url) {
-              setPrefetchMap(prev => ({ 
-                ...prev, 
-                [track.id]: { url, timestamp: Date.now() } 
-              }));
+              setPrefetchMap(prev => {
+                const updated = { ...prev, [track.id]: { url, timestamp: Date.now() } };
+                // Cap cache at 5 entries to prevent unbounded growth in memory
+                const entries = Object.entries(updated).sort((a, b) => b[1].timestamp - a[1].timestamp);
+                return Object.fromEntries(entries.slice(0, 5));
+              });
               logToSystem(`[Prefetch] ✅ Cached: "${track.name}"`);
             }
           } catch (err) {

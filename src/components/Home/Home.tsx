@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import './Home.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import type { BrowseSectionItem } from '../../../Plugin/gql/types/gql-api';
 
 interface PlatformCookie {
@@ -30,7 +30,7 @@ interface HomeProps {
     onArtistSelect?: (id: string) => void;
 }
 
-const Home = ({ accessToken, cookies, onPlaylistSelect, onTrackViewSelect, onArtistSelect }: HomeProps) => {
+const Home = ({ accessToken: _accessToken, cookies, onPlaylistSelect, onTrackViewSelect, onArtistSelect }: HomeProps) => {
     const { 
         handleTrackSelect: onTrackSelect
     } = usePlayer();
@@ -43,9 +43,7 @@ const Home = ({ accessToken, cookies, onPlaylistSelect, onTrackViewSelect, onArt
     const [activeSection, setActiveSection] = useState<{ id: string; title: string } | null>(null);
     const [sectionItems, setSectionItems] = useState<any[]>([]);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     const greeting = useMemo(() => {
         const hour = new Date().getHours();
@@ -311,6 +309,7 @@ const Home = ({ accessToken, cookies, onPlaylistSelect, onTrackViewSelect, onArt
                                         src={item.images[0]?.url || 'placeholder.png'}
                                         alt={item.name}
                                         className="card-image"
+                                        loading="lazy"
                                     />
                                     <div className="play-button" onClick={(e) => handlePlayButtonClick(e, item)}>
                                         <svg role="img" height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
@@ -386,6 +385,7 @@ const Home = ({ accessToken, cookies, onPlaylistSelect, onTrackViewSelect, onArt
                                                 src={item.images[0]?.url || 'placeholder.png'}
                                                 alt={item.name}
                                                 className="card-image"
+                                                loading="lazy"
                                             />
                                             <div className="play-button" onClick={(e) => handlePlayButtonClick(e, item)}>
                                                 <svg role="img" height="24" width="24" viewBox="0 0 24 24" fill="currentColor">

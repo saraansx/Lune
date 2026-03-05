@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './TrackView.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 
 interface PlatformCookie {
     domain: string;
@@ -37,8 +37,8 @@ interface TrackViewProps {
 }
 
 const TrackView: React.FC<TrackViewProps> = ({
-    accessToken,
-    cookies,
+    accessToken: _accessToken,
+    cookies: _cookies,
     trackId,
     trackName,
     trackImage,
@@ -67,9 +67,7 @@ const TrackView: React.FC<TrackViewProps> = ({
     const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     useEffect(() => {
         const fetchTrackDetails = async () => {
@@ -587,6 +585,7 @@ const TrackView: React.FC<TrackViewProps> = ({
                                         src={album.images[0].url}
                                         alt={album.name}
                                         className="track-view-album-img"
+                                        loading="lazy"
                                     />
                                 )}
                                 <div className="track-view-album-name">{album.name}</div>

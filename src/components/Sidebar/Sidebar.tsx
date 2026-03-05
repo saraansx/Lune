@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './Sidebar.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 // Assuming types GqlPlaylistSimplified are exported
 import type { GqlPlaylistSimplified } from '../../../Plugin/gql/types/gql-api';
 // Import types for Album and Artist (assuming they are in web-api)
@@ -28,7 +28,7 @@ interface SidebarProps {
 
 type FilterType = 'Playlists' | 'Albums' | 'Artists' | 'Local' | 'Downloads';
 
-const Sidebar: React.FC<SidebarProps> = ({ accessToken, cookies, onPlaylistSelect, onArtistSelect, isOnline }) => {
+const Sidebar: React.FC<SidebarProps> = ({ accessToken: _accessToken, cookies, onPlaylistSelect, onArtistSelect, isOnline }) => {
     const { t } = useLanguage();
     const [items, setItems] = useState<(GqlPlaylistSimplified | Album | Artist)[]>([]);
     const [activeFilter, setActiveFilter] = useState<FilterType>('Playlists');
@@ -57,9 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ accessToken, cookies, onPlaylistSelec
         }
     }, [isOnline]);
 
-    // Initialize the API
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc), [accessToken, spDc]);
+    const api = useApi();
 
     const fetchLocalPlaylists = async () => {
         try {
@@ -344,7 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({ accessToken, cookies, onPlaylistSelec
                             >
                                 <div className="library-img-wrapper">
                                     {lp.artwork ? (
-                                        <img src={lp.artwork} alt={lp.name} className="library-img" />
+                                        <img src={lp.artwork} alt={lp.name} className="library-img" loading="lazy" />
                                     ) : (
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                                             <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
@@ -416,7 +414,7 @@ const Sidebar: React.FC<SidebarProps> = ({ accessToken, cookies, onPlaylistSelec
                     >
                         <div className="library-img-wrapper">
                             {sl.image ? (
-                                <img src={sl.image} alt={sl.name} className="library-img" />
+                                <img src={sl.image} alt={sl.name} className="library-img" loading="lazy" />
                             ) : (
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
                                     <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />

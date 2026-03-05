@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './SearchView.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { normalizeTrack, LuneTrack } from '../../types/track';
@@ -21,8 +21,8 @@ interface SearchViewProps {
 
 const SearchView = ({
     query,
-    accessToken,
-    cookies,
+    accessToken: _accessToken,
+    cookies: _cookies,
     onTrackViewSelect,
     onArtistSelect,
     onPlaylistSelect
@@ -57,9 +57,7 @@ const SearchView = ({
     const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false);
     const trackMenuRef = useRef<HTMLDivElement>(null);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -470,6 +468,7 @@ const SearchView = ({
                                             src={topResult.images?.[0]?.url || topResult.album?.images?.[0]?.url || (topResult.objectType === 'Artist' ? ARTIST_PLACEHOLDER : ALBUM_PLACEHOLDER)} 
                                             alt={topResult.name} 
                                             className={`top-result-image ${topResult.objectType === 'Artist' ? 'artist' : ''}`}
+                                            loading="lazy"
                                         />
                                         <div className="play-button" onClick={(e) => handlePlayButtonClick(e, topResult)}>
                                             <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
@@ -524,7 +523,7 @@ const SearchView = ({
                                             onClick={() => onTrackSelect?.(normalized, [normalized])}
                                             onContextMenu={(e) => handleTrackMenuClick(e, track)}
                                         >
-                                            <img src={track.album?.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={track.name} className="song-img" />
+                                            <img src={track.album?.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={track.name} className="song-img" loading="lazy" />
                                             <div className="song-info">
                                                 <div className="song-name" style={{ display: 'flex', alignItems: 'center' }}>
                                                     {track.name}
@@ -613,7 +612,7 @@ const SearchView = ({
                                 {artists.slice(0, 8).map((artist: any) => (
                                     <div key={artist.id} className="carousel-item" onClick={() => onArtistSelect(artist.id)}>
                                         <div className="card-image-wrapper">
-                                            <img src={artist.images?.[0]?.url || ARTIST_PLACEHOLDER} alt={artist.name} className="carousel-img artist" />
+                                            <img src={artist.images?.[0]?.url || ARTIST_PLACEHOLDER} alt={artist.name} className="carousel-img artist" loading="lazy" />
                                             <div className="play-button" onClick={(e) => handlePlayButtonClick(e, artist)}>
                                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>
@@ -644,7 +643,7 @@ const SearchView = ({
                                 {albums.slice(0, 8).map((album: any) => (
                                     <div key={album.id} className="carousel-item" onClick={() => onPlaylistSelect(album.id, true)}>
                                         <div className="card-image-wrapper">
-                                            <img src={album.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={album.name} className="carousel-img" />
+                                            <img src={album.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={album.name} className="carousel-img" loading="lazy" />
                                             <div className="play-button" onClick={(e) => handlePlayButtonClick(e, album)}>
                                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>
@@ -669,7 +668,7 @@ const SearchView = ({
                                 {playlists.slice(0, 8).map((playlist: any) => (
                                     <div key={playlist.id} className="carousel-item" onClick={() => onPlaylistSelect(playlist.id)}>
                                         <div className="card-image-wrapper">
-                                            <img src={playlist.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={playlist.name} className="carousel-img" />
+                                            <img src={playlist.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={playlist.name} className="carousel-img" loading="lazy" />
                                             <div className="play-button" onClick={(e) => handlePlayButtonClick(e, playlist)}>
                                                 <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>
@@ -699,7 +698,7 @@ const SearchView = ({
                                     onClick={() => onTrackSelect?.(normalized, [normalized])}
                                     onContextMenu={(e) => handleTrackMenuClick(e, track)}
                                 >
-                                    <img src={track.album?.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={track.name} className="song-img" />
+                                    <img src={track.album?.images?.[0]?.url || ALBUM_PLACEHOLDER} alt={track.name} className="song-img" loading="lazy" />
                                     <div className="song-info">
                                         <div className="song-name" style={{ display: 'flex', alignItems: 'center' }}>
                                             {track.name}
@@ -781,7 +780,7 @@ const SearchView = ({
                     {activeFilter === 'artists' && artists?.map((artist: any) => (
                         <div key={artist.id} className="carousel-item" onClick={() => onArtistSelect(artist.id)}>
                             <div className="card-image-wrapper">
-                                <img src={artist.images?.[0]?.url || ARTIST_PLACEHOLDER} alt={artist.name} className="carousel-img artist" />
+                                <img src={artist.images?.[0]?.url || ARTIST_PLACEHOLDER} alt={artist.name} className="carousel-img artist" loading="lazy" />
                                 <div className="play-button" onClick={(e) => handlePlayButtonClick(e, artist)}>
                                     <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>
@@ -801,7 +800,7 @@ const SearchView = ({
                     {activeFilter === 'albums' && albums?.map((album: any) => (
                          <div key={album.id} className="carousel-item" onClick={() => onPlaylistSelect(album.id, true)}>
                              <div className="card-image-wrapper">
-                                <img src={album.images?.[0]?.url || 'placeholder.png'} alt={album.name} className="carousel-img" />
+                                <img src={album.images?.[0]?.url || 'placeholder.png'} alt={album.name} className="carousel-img" loading="lazy" />
                                 <div className="play-button" onClick={(e) => handlePlayButtonClick(e, album)}>
                                     <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>
@@ -815,7 +814,7 @@ const SearchView = ({
                     {activeFilter === 'playlists' && playlists?.map((playlist: any) => (
                         <div key={playlist.id} className="carousel-item" onClick={() => onPlaylistSelect(playlist.id)}>
                             <div className="card-image-wrapper">
-                                <img src={playlist.images?.[0]?.url || 'placeholder.png'} alt={playlist.name} className="carousel-img" />
+                                <img src={playlist.images?.[0]?.url || 'placeholder.png'} alt={playlist.name} className="carousel-img" loading="lazy" />
                                 <div className="play-button" onClick={(e) => handlePlayButtonClick(e, playlist)}>
                                     <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M7.05 3.606l13.49 7.788a.7.7 0 010 1.212L7.05 20.394A.7.7 0 016 19.788V4.212a.7.7 0 011.05-.606z"></path>

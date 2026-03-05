@@ -92,11 +92,39 @@ export const useDownloadsState = () => {
     return state;
 };
 
-export const DownloadIndicator: React.FC<{ trackId: string }> = ({ trackId }) => {
-    const { downloading, downloaded } = useDownloadsState();
+export const useTrackDownloadState = (trackId: string) => {
+    const [state, setState] = useState(() => ({
+        progress: downloadStateObj.downloading[trackId],
+        isDownloaded: downloadStateObj.downloaded.has(trackId)
+    }));
 
-    const isDownloaded = downloaded.has(trackId);
-    let progress = downloading[trackId];
+    useEffect(() => {
+        initDownloadState();
+        
+        const handleChange = () => {
+            const newProgress = downloadStateObj.downloading[trackId];
+            const newIsDownloaded = downloadStateObj.downloaded.has(trackId);
+            setState(prev => {
+                if (prev.progress === newProgress && prev.isDownloaded === newIsDownloaded) {
+                    return prev;
+                }
+                return { progress: newProgress, isDownloaded: newIsDownloaded };
+            });
+        };
+        
+        downloadStateObj.listeners.add(handleChange);
+        handleChange();
+        
+        return () => {
+            downloadStateObj.listeners.delete(handleChange);
+        };
+    }, [trackId]);
+
+    return state;
+};
+
+export const DownloadIndicator: React.FC<{ trackId: string }> = React.memo(({ trackId }) => {
+    const { progress: currentProgress, isDownloaded } = useTrackDownloadState(trackId);
 
     // If it's downloaded and we have a stale progress, prioritize the downloaded state
     if (isDownloaded) {
@@ -124,10 +152,10 @@ export const DownloadIndicator: React.FC<{ trackId: string }> = ({ trackId }) =>
         );
     }
 
-    if (progress === undefined) return null;
+    if (currentProgress === undefined) return null;
 
     // Default to 0 to prevent NaN in strokeDashoffset
-    progress = progress || 0; 
+    const progress = currentProgress || 0; 
     
     const radius = 8;
     const circumference = 2 * Math.PI * radius;
@@ -168,4 +196,4 @@ export const DownloadIndicator: React.FC<{ trackId: string }> = ({ trackId }) =>
             </div>
         </div>
     );
-};
+});

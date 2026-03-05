@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Account.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface AccountProps {
@@ -8,14 +8,12 @@ interface AccountProps {
     cookies: any[];
 }
 
-const Account: React.FC<AccountProps> = ({ accessToken, cookies }) => {
+const Account: React.FC<AccountProps> = ({ accessToken, cookies: _cookies }) => {
     const { t } = useLanguage();
     const [accountData, setAccountData] = useState<{ profile: any, attributes: any } | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     useEffect(() => {
         const fetchData = async () => {

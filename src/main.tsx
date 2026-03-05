@@ -7,26 +7,39 @@ import TitleBar from './components/TitleBar/TitleBar'
 import Sidebar from './components/Sidebar/Sidebar';
 import Home from './components/Home/Home';
 import Playlist from './components/Playlist/Playlist';
-import TrackView from './components/TrackView/TrackView';
-import Downloads from './components/Downloads/Downloads';
-import ArtistView from './components/ArtistView/ArtistView';
-import SearchView from './components/SearchView/SearchView';
 import SearchBar from './components/SearchBar/SearchBar';
-import { SpotifyGqlApi } from '../Plugin/gql/index';
 import { PlayerProvider, usePlayer } from './context/PlayerContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { PlaybackProvider } from './context/PlaybackContext';
+import { ApiProvider } from './context/ApiContext';
+import { SpotifyGqlApi } from '../Plugin/gql/index';
 
 import './index.css'
 
 import PlayerBar from './components/PlayerBar/PlayerBar';
-import NowPlayingView from './components/NowPlayingView/NowPlayingView';
-import QueueView from './components/QueueView/QueueView';
-import LyricsView from './components/LyricsView/LyricsView';
-import Settings from './Settings/settings/Settings';
+
+// Lazy-loaded views — only downloaded when first rendered
+const TrackView = React.lazy(() => import('./components/TrackView/TrackView'));
+const Downloads = React.lazy(() => import('./components/Downloads/Downloads'));
+const ArtistView = React.lazy(() => import('./components/ArtistView/ArtistView'));
+const SearchView = React.lazy(() => import('./components/SearchView/SearchView'));
+const NowPlayingView = React.lazy(() => import('./components/NowPlayingView/NowPlayingView'));
+const QueueView = React.lazy(() => import('./components/QueueView/QueueView'));
+const LyricsView = React.lazy(() => import('./components/LyricsView/LyricsView'));
+const Settings = React.lazy(() => import('./Settings/settings/Settings'));
 import updatesImg from './assets/Updates.png';
 import mainLogo from './assets/Main.png';
+
+const FallbackLoader = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', flexDirection: 'column', color: 'var(--text-dim)', opacity: 0, animation: 'fadeIn 0.2s ease 0.1s forwards' }}>
+    <div className="playing-animation" style={{ transform: 'scale(1.5)', opacity: 0.5 }}>
+      <div className="bar bar1"></div>
+      <div className="bar bar2"></div>
+      <div className="bar bar3"></div>
+    </div>
+  </div>
+);
 
 const MainLayout = ({ 
   credentials, 
@@ -132,6 +145,7 @@ const MainLayout = ({
             </div>
           </div>
           <div style={{ flex: 1, overflowY: 'auto', width: '100%', display: 'flex', flexDirection: 'column' }}>
+            <React.Suspense fallback={<FallbackLoader />}>
             {view === 'home' ? (
               <Home
                 accessToken={credentials.accessToken}
@@ -190,8 +204,10 @@ const MainLayout = ({
                 />
               )
             )}
+            </React.Suspense>
           </div>
         </div>
+        <React.Suspense fallback={<FallbackLoader />}>
         {showQueue && (
           <QueueView 
             onClose={() => setShowQueue(false)} 
@@ -207,6 +223,7 @@ const MainLayout = ({
           onPlaylistSelect={handlePlaylistSelect}
         />
         <LyricsView />
+        </React.Suspense>
       </div>
       <PlayerBar
         onArtistSelect={handlePlayerArtistClick}
@@ -592,6 +609,10 @@ const App = () => {
     setView('settings');
   };
 
+  const appSpDc = React.useMemo(() => credentials?.cookies?.find((c: any) => c.name === 'sp_dc')?.value, [credentials]);
+  const appSpT = React.useMemo(() => credentials?.cookies?.find((c: any) => c.name === 'sp_t')?.value, [credentials]);
+  const api = React.useMemo(() => credentials?.accessToken ? new SpotifyGqlApi(credentials.accessToken, appSpDc, appSpT) : null, [credentials?.accessToken, appSpDc, appSpT]);
+
   const handlePlayerArtistClick = async (artistId?: string | null, artistName?: string) => {
     if (!credentials || !credentials.accessToken) return;
     
@@ -603,15 +624,10 @@ const App = () => {
 
     // 2. Fallback: If no ID but we have a name, search for the artist
     if (!artistName) return;
-
-    const spDc = credentials.cookies?.find((c: any) => c.name === 'sp_dc')?.value;
-    const spT = credentials.cookies?.find((c: any) => c.name === 'sp_t')?.value;
-    const api = new SpotifyGqlApi(credentials.accessToken, spDc, spT);
     
     try {
-      // Split by comma in case it's a multi-artist string, and take the first one
       const searchName = artistName.split(',')[0].trim();
-      const searchRes = await api.search.artists(searchName, { limit: 1 });
+      const searchRes = await api!.search.artists(searchName, { limit: 1 });
       if (searchRes.items && searchRes.items.length > 0) {
         handleArtistSelect(searchRes.items[0].id);
       }
@@ -636,7 +652,7 @@ const App = () => {
 
   if (isAuthenticated && credentials) {
     return (
-      <React.Fragment>
+      <ApiProvider accessToken={credentials.accessToken} cookies={credentials.cookies}>
         {showSplash && <SplashScreen onFinished={() => setShowSplash(false)} />}
         <MainLayout 
           credentials={credentials}
@@ -659,7 +675,7 @@ const App = () => {
         />
         <MajorUpdateModal updateStatus={appUpdateStatus} setAppUpdateStatus={setAppUpdateStatus} />
         <YtdlpUpdateModal updateStatus={ytdlpStatus} setYtdlpStatus={setYtdlpStatus} />
-      </React.Fragment>
+      </ApiProvider>
     );
   }
 

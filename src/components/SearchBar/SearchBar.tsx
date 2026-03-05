@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import './SearchBar.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import { usePlayer } from '../../context/PlayerContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { normalizeTrack, LuneTrack } from '../../types/track';
@@ -17,8 +17,8 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({ 
-    accessToken, 
-    cookies, 
+    accessToken: _accessToken, 
+    cookies: _cookies, 
     onTrackViewSelect, 
     onArtistSelect, 
     onPlaylistSelect,
@@ -50,9 +50,7 @@ const SearchBar = ({
     const { lowDataMode } = usePlayback();
     const { t } = useLanguage();
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const spT = useMemo(() => cookies?.find(c => c.name === 'sp_t')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc, spT), [accessToken, spDc, spT]);
+    const api = useApi();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -432,7 +430,7 @@ const SearchBar = ({
                                                      handlePlayButtonClick(e, item);
                                                  }
                                              }}>
-                                            <img src={imageUrl} alt={item.name} />
+                                            <img src={imageUrl} alt={item.name} loading="lazy" />
                                             {!isArtist && (
                                                 <div className="result-play-overlay">
                                                     <svg viewBox="0 0 24 24" fill="currentColor">

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { Virtuoso } from 'react-virtuoso';
 import { createPortal } from 'react-dom';
 import './Playlist.css';
-import { SpotifyGqlApi } from '../../../Plugin/gql/index';
+import { useApi } from '../../context/ApiContext';
 import CreatePlaylistModal from '../CreatePlaylist/CreatePlaylistModal';
 import ShuffleIcon from '../Icons/ShuffleIcon';
 import ShuffleButton from '../Shuffle/ShuffleButton';
@@ -27,7 +27,7 @@ interface PlaylistProps {
     onArtistSelect?: (id: string | null, name: string) => void;
 }
 
-const Playlist: React.FC<PlaylistProps> = ({ accessToken, cookies, playlistId, isAlbum: isAlbumProp, onBack, onHome, onPlaylistSelect, onArtistSelect }) => {
+const Playlist: React.FC<PlaylistProps> = ({ accessToken: _accessToken, cookies: _cookies, playlistId, isAlbum: isAlbumProp, onBack, onHome, onPlaylistSelect, onArtistSelect }) => {
     const {
         currentTrack,
         isShuffle,
@@ -66,8 +66,7 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken, cookies, playlistId, i
         setScrollParent(el);
     }, []);
 
-    const spDc = useMemo(() => cookies?.find(c => c.name === 'sp_dc')?.value, [cookies]);
-    const api = useMemo(() => new SpotifyGqlApi(accessToken, spDc), [accessToken, spDc]);
+    const api = useApi();
     const handleDescriptionClick = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
         const anchor = target.closest('a');
@@ -974,7 +973,7 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken, cookies, playlistId, i
                                 )}
                             </div>
                             <div className="track-title-col">
-                                <img src={item.albumArt || 'placeholder.png'} className="track-img" alt="" />
+                                <img src={item.albumArt || 'placeholder.png'} className="track-img" alt="" loading="lazy" />
                                 <div className="track-text">
                                     <span className="track-name" style={{ display: 'flex', alignItems: 'center' }}>
                                         {item.name}
@@ -1159,7 +1158,7 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken, cookies, playlistId, i
                                 onClick={() => onPlaylistSelect?.(album.id, true)}
                             >
                                 <div className="card-image-wrapper">
-                                    <img src={album.images?.[0]?.url || 'placeholder.png'} alt={album.name} />
+                                    <img src={album.images?.[0]?.url || 'placeholder.png'} alt={album.name} loading="lazy" />
                                 </div>
                                 <div className="card-info">
                                     <span className="card-name">{album.name}</span>

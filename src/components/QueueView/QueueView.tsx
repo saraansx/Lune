@@ -107,7 +107,7 @@ const QueueView: React.FC<{ onClose: () => void; onArtistSelect?: (id: string | 
                             <div className="queue-section">
                                 <h3 className="section-title">{t('queue.nowPlaying')}</h3>
                                 <div className="queue-item playing">
-                                    <img src={currentTrack.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" />
+                                    <img src={currentTrack.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" loading="lazy" />
                                     <div className="queue-track-info">
                                         <span className="queue-track-name" style={{ display: 'flex', alignItems: 'center' }}>
                                             {currentTrack.name}
@@ -168,7 +168,7 @@ const QueueView: React.FC<{ onClose: () => void; onArtistSelect?: (id: string | 
                                         onClick={() => onTrackSelect(track)}
                                         onContextMenu={(e) => handleMenuClick(e, `queue-${track.id}-${index}`)}
                                     >
-                                        <img src={track.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" />
+                                        <img src={track.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" loading="lazy" />
                                         <div className="queue-track-info">
                                             <span className="queue-track-name" style={{ display: 'flex', alignItems: 'center' }}>
                                                 {track.name}
@@ -263,7 +263,7 @@ const QueueView: React.FC<{ onClose: () => void; onArtistSelect?: (id: string | 
                                     onClick={() => onTrackSelect(track)}
                                     onContextMenu={(e) => handleMenuClick(e, `history-${track.id}-${index}`)}
                                 >
-                                    <img src={track.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" />
+                                    <img src={track.albumArt || ALBUM_PLACEHOLDER} alt="" className="queue-track-art" loading="lazy" />
                                     <div className="queue-track-info">
                                         <span className="queue-track-name" style={{ display: 'flex', alignItems: 'center' }}>
                                             {track.name}

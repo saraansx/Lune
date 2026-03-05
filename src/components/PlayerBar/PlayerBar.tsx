@@ -432,7 +432,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                     logToSystem(`[Radio Pool] ✅ Appended ${poolTracks.length} tracks. First up: "${poolTracks[0]?.name}"`);
                     
                     if (!ignorePoolFetch) {
-                        setAutoplayQueue(prev => [...prev, ...poolTracks]);
+                        setAutoplayQueue(prev => [...prev, ...poolTracks].slice(-50));
                     }
                 }
             } catch (err) {
