@@ -60,4 +60,19 @@ export function registerSettingsHandlers() {
             buildVersion
         };
     });
+
+    ipcMain.handle('get-github-commits', async () => {
+        try {
+            const response = await fetch('https://api.github.com/repos/saraansx/Lune/commits?per_page=10', {
+                headers: {
+                    'User-Agent': 'Lune-App'
+                }
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            return await response.json();
+        } catch (err) {
+            console.error('[Main] Failed to fetch commits:', err);
+            return null;
+        }
+    });
 }

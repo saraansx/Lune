@@ -15,10 +15,10 @@ const CommitHistory: React.FC = () => {
     useEffect(() => {
         const fetchCommits = async () => {
             try {
-                const response = await fetch('https://api.github.com/repos/saraansx/Lune/commits?per_page=10');
-                if (!response.ok) throw new Error('Failed to fetch commits');
-                const data = await response.json();
-                setCommits(data);
+                if (window.ipcRenderer) {
+                    const data = await window.ipcRenderer.invoke('get-github-commits');
+                    if (data) setCommits(data);
+                }
             } catch (err) {
                 console.error('Error fetching commits:', err);
             } finally {

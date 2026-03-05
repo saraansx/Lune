@@ -389,15 +389,16 @@ const App = () => {
     if (!window.ipcRenderer) return;
     
     const handleAppUpdate = (_event: any, updateData: any) => {
+      if (updateData.status === 'up-to-date') return;
       setAppUpdateStatus(updateData);
-      if (updateData.status === 'up-to-date' || updateData.status === 'error') {
+      if (updateData.status === 'error') {
         setTimeout(() => setAppUpdateStatus({ status: 'idle' }), 5000);
       }
     };
 
     const handleYtdlpUpdate = (_event: any, statusData: any) => {
-      // If it's old format (string), wrap it. If new (object), use it.
       const data = typeof statusData === 'string' ? { status: statusData } : statusData;
+      if (data.status === 'ready' && data.isLatest) return;
       setYtdlpStatus(data);
     };
 
