@@ -19,8 +19,10 @@
 
 Var CheckboxDesktop
 Var CheckboxLaunch
+Var CheckboxStartup
 Var CheckDesktopState
 Var CheckLaunchState
+Var CheckStartupState
 
 ; Called by MUI to build the finish page UI
 Function finPageCreate
@@ -44,6 +46,11 @@ Function finPageCreate
   Pop $CheckboxDesktop
   ${NSD_SetState} $CheckboxDesktop ${BST_UNCHECKED}
 
+  ; "Run on Startup" checkbox – unchecked by default
+  ${NSD_CreateCheckbox} 10u 60u 100% 15u "Run on Startup"
+  Pop $CheckboxStartup
+  ${NSD_SetState} $CheckboxStartup ${BST_UNCHECKED}
+
   nsDialogs::Show
 FunctionEnd
 
@@ -51,9 +58,14 @@ FunctionEnd
 Function finPageLeave
   ${NSD_GetState} $CheckboxDesktop $CheckDesktopState
   ${NSD_GetState} $CheckboxLaunch  $CheckLaunchState
+  ${NSD_GetState} $CheckboxStartup $CheckStartupState
 
   ${If} $CheckDesktopState == ${BST_CHECKED}
     CreateShortCut "$DESKTOP\Lune.lnk" "$INSTDIR\Lune.exe" "" "$INSTDIR\Lune.exe" 0
+  ${EndIf}
+
+  ${If} $CheckStartupState == ${BST_CHECKED}
+    WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Lune" '"$INSTDIR\Lune.exe"'
   ${EndIf}
 
   ${If} $CheckLaunchState == ${BST_CHECKED}
