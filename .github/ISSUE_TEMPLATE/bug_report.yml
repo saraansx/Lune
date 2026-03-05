@@ -55,7 +55,7 @@ body:
   - type: textarea
     attributes:
       label: Logs
-      description: Open DevTools with Ctrl+Shift+I and paste any relevant console output below.
+      description: Go to Settings > Logs in Lune and paste any relevant output below.
       value: |
         <details>
         <summary>Console output</summary>
