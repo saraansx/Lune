@@ -347,16 +347,34 @@ const SearchBar = ({
         }
     };
 
-    // Helper to get all results mixed, or limit them. Spotify's dropdown usually categorizes or mixes.
-    // For simplicity, we can interleave or show tracks then artists, etc.
+    // Interleave results so all categories are visible without excessive scrolling
     const allResults = useMemo(() => {
         if (!results) return [];
-        return [
-            ...(results.tracks || []),
-            ...(results.artists || []),
-            ...(results.albums || []),
-            ...(results.playlists || [])
-        ].sort(() => Math.random() - 0.5).slice(0, 30);
+        const tracks = results.tracks || [];
+        const artists = results.artists || [];
+        const albums = results.albums || [];
+        const playlists = results.playlists || [];
+
+        // Show top tracks first, then interleave other categories, then remaining tracks
+        const interleaved: any[] = [
+            ...tracks.slice(0, 4),        // Top 4 tracks
+            ...artists.slice(0, 2),       // Top 2 artists
+            ...albums.slice(0, 2),        // Top 2 albums
+            ...playlists.slice(0, 2),     // Top 2 playlists
+            ...tracks.slice(4),           // Remaining tracks
+            ...artists.slice(2),          // Remaining artists
+            ...albums.slice(2),           // Remaining albums
+            ...playlists.slice(2),        // Remaining playlists
+        ];
+
+        // Deduplicate by uri
+        const seen = new Set<string>();
+        return interleaved.filter(item => {
+            const key = item.uri || item.id;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        }).slice(0, 30);
     }, [results]);
 
     return (

@@ -116,10 +116,21 @@ const Sidebar: React.FC<SidebarProps> = ({ accessToken, cookies, onPlaylistSelec
             }
 
             if (isMore) {
-                setItems(prev => [...prev, ...data]);
+                setItems(prev => {
+                    const existingIds = new Set(prev.map(i => i.id));
+                    const uniqueNew = data.filter(i => !existingIds.has(i.id));
+                    return [...prev, ...uniqueNew];
+                });
                 setOffset(prev => prev + data.length);
             } else {
-                setItems(data);
+                // Deduplicate by id on initial load
+                const seen = new Set<string>();
+                const unique = data.filter(i => {
+                    if (seen.has(i.id)) return false;
+                    seen.add(i.id);
+                    return true;
+                });
+                setItems(unique);
                 setOffset(data.length);
             }
             
