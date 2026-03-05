@@ -21,40 +21,44 @@ class SpotifySearchEndpoint {
         return albums
             .filter(
                 (item) =>
-                    item.__typename === "AlbumResponseWrapper" &&
-                    item.data?.__typename === "Album"
+                    item?.__typename === "AlbumResponseWrapper" &&
+                    item?.data?.__typename === "Album"
             )
             .map((item) => {
-                const album = item.data;
-                const id = album.uri.split(":").pop();
+                try {
+                    const album = item.data;
+                    const id = album.uri?.split(":").pop() || "";
 
-                return {
-                    objectType: "Album",
-                    id,
-                    name: album.name,
-                    album_type: album.type?.toLowerCase(),
-                    release_date: album.date?.year?.toString(),
-                    release_date_precision: "year",
-                    images: album.coverArt?.sources,
-                    uri: album.uri,
-                    external_urls: {
-                        spotify: `https://open.spotify.com/album/${id}`,
-                    },
-                    artists:
-                        album.artists?.items?.map((artist: any) => {
-                            const id = artist.uri.split(":").pop();
-                            return {
-                                objectType: "Artist",
-                                id,
-                                uri: artist.uri,
-                                name: artist.profile.name,
-                                external_urls: {
-                                    spotify: `https://open.spotify.com/artist/${id}`,
-                                },
-                            } satisfies GqlArtistSimplified;
-                        }) ?? [],
-                } satisfies GqlAlbum;
-            });
+                    return {
+                        objectType: "Album",
+                        id,
+                        name: album.name || "",
+                        album_type: album.type?.toLowerCase(),
+                        release_date: album.date?.year?.toString(),
+                        release_date_precision: "year",
+                        images: album.coverArt?.sources || album.images?.items?.flatMap((i: any) => i.sources) || [],
+                        uri: album.uri || "",
+                        external_urls: {
+                            spotify: `https://open.spotify.com/album/${id}`,
+                        },
+                        artists:
+                            album.artists?.items?.map((artist: any) => {
+                                const artistId = artist.uri?.split(":").pop() || "";
+                                return {
+                                    objectType: "Artist",
+                                    id: artistId,
+                                    uri: artist.uri || "",
+                                    name: artist.profile?.name || artist.name || "",
+                                    external_urls: {
+                                        spotify: `https://open.spotify.com/artist/${artistId}`,
+                                    },
+                                } satisfies GqlArtistSimplified;
+                            }) ?? [],
+                    } satisfies GqlAlbum;
+                } catch {
+                    return null;
+                }
+            }).filter(Boolean) as GqlAlbum[];
     }
 
     convertArtists(artists: Record<string, any>[]): GqlArtist[] {
@@ -85,41 +89,45 @@ class SpotifySearchEndpoint {
         return playlists
             .filter(
                 (item) =>
-                    item.__typename === "PlaylistResponseWrapper" &&
-                    item.data?.__typename === "Playlist"
+                    item?.__typename === "PlaylistResponseWrapper" &&
+                    item?.data?.__typename === "Playlist"
             )
             .map((data) => {
-                const playlist = data.data;
-                const id = playlist.uri.split(":").pop();
+                try {
+                    const playlist = data.data;
+                    const id = playlist.uri?.split(":").pop() || "";
 
-                const owner = playlist.ownerV2.data;
-                const ownerId = owner.uri.split(":").pop();
+                    const owner = playlist.ownerV2?.data || {};
+                    const ownerId = owner.uri?.split(":").pop() || "";
 
-                return {
-                    id,
-                    uri: playlist.uri,
-                    name: playlist.name,
-                    description: playlist.description,
-                    images:
-                        playlist.images?.items?.flatMap((image: any) => image.sources) ??
-                        [],
-                    external_urls: {
-                        spotify: `https://open.spotify.com/playlist/${id}`,
-                    },
-                    owner: {
-                        type: "User",
-                        id: ownerId,
-                        uri: owner.uri,
-                        name: owner.username,
-                        display_name: owner.name,
-                        images: owner.avatar?.sources ?? [],
+                    return {
+                        id,
+                        uri: playlist.uri || "",
+                        name: playlist.name || "",
+                        description: playlist.description || "",
+                        images:
+                            playlist.images?.items?.flatMap((image: any) => image.sources) ??
+                            [],
                         external_urls: {
-                            spotify: `https://open.spotify.com/user/${ownerId}`,
+                            spotify: `https://open.spotify.com/playlist/${id}`,
                         },
-                    } satisfies GqlUser,
-                    objectType: "Playlist",
-                } satisfies GqlPlaylistSimplified;
-            });
+                        owner: {
+                            type: "User",
+                            id: ownerId,
+                            uri: owner.uri || "",
+                            name: owner.username || owner.name || "",
+                            display_name: owner.name || "",
+                            images: owner.avatar?.sources ?? [],
+                            external_urls: {
+                                spotify: `https://open.spotify.com/user/${ownerId}`,
+                            },
+                        } satisfies GqlUser,
+                        objectType: "Playlist",
+                    } satisfies GqlPlaylistSimplified;
+                } catch {
+                    return null;
+                }
+            }).filter(Boolean) as GqlPlaylistSimplified[];
     }
 
     convertTracks(tracks: Record<string, any>[]): Track[] {
@@ -187,9 +195,9 @@ class SpotifySearchEndpoint {
                         offset,
                         limit,
                         numberOfTopResults: topResults,
-                        includeAudiobooks: false,
+                        includeAudiobooks: true,
                         includeArtistHasConcertsField: false,
-                        includePreReleases: false,
+                        includePreReleases: true,
                         includeLocalConcertsField: false,
                         includeAuthors: false,
                     },
@@ -198,7 +206,7 @@ class SpotifySearchEndpoint {
                         persistedQuery: {
                             version: 1,
                             sha256Hash:
-                                "4801118d4a100f756e833d33984436a3899cff359c532f8fd3aaf174b60b3b49",
+                                "3c9d3f60dac5dea3876b6db3f534192b1c1d90032c4233c1bbaba526db41eb31",
                         },
                     },
                 },
@@ -208,10 +216,10 @@ class SpotifySearchEndpoint {
         SpotifyError.mayThrow(res);
 
         const searchData = res.data.searchV2;
-        const albums = this.convertAlbums(searchData.albumsV2.items);
-        const artists = this.convertArtists(searchData.artists.items);
-        const playlists = this.convertPlaylists(searchData.playlists.items);
-        const tracks = this.convertTracks(searchData.tracksV2.items);
+        const albums = this.convertAlbums(searchData.albumsV2?.items || []);
+        const artists = this.convertArtists(searchData.artists?.items || []);
+        const playlists = this.convertPlaylists(searchData.playlists?.items || searchData.playlistsV2?.items || []);
+        const tracks = this.convertTracks(searchData.tracksV2?.items || []);
 
         return {
             albums,
