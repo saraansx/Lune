@@ -86,10 +86,6 @@ body:
       multiple: false
       options:
         - "GitHub Releases (installer)"
-        - "WinGet"
-        - "Scoop"
-        - "Chocolatey"
-        - "Built from source"
     validations:
       required: true
 
