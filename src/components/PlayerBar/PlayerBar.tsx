@@ -592,16 +592,34 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
         try {
             const url = await window.ipcRenderer.invoke('get-stream-url', currentTrack.name, currentTrack.artist, trackId, true);
             
-            // If the request was aborted, don't update state
             if (controller.signal.aborted) return;
 
-            // Verify we're still on the same track after the await
             if (url && currentTrack?.id === trackId) {
                 setStreamUrl(url);
+                streamRetryCount.current = 0; // Reset on success
+            } else if (!url && currentTrack?.id === trackId) {
+                // If it returned empty, it failed or rate limited in the backend
+                if (streamRetryCount.current < 2) {
+                    streamRetryCount.current += 1;
+                    console.warn(`[PlayerBar] Empty stream URL, retrying in 2s... (${streamRetryCount.current})`);
+                    await new Promise(r => setTimeout(r, 2000));
+                    // re-trigger is handled by the effect re-running because isLoading becomes false
+                } else {
+                    console.error('[PlayerBar] Failed to get URL after retries, skipping.');
+                    streamRetryCount.current = 0;
+                    onNext();
+                }
             }
         } catch (err) {
             if (!controller.signal.aborted) {
                 console.error("Failed to get stream url", err);
+                // Also treat throw as a retry attempt
+                if (streamRetryCount.current < 2) {
+                    streamRetryCount.current += 1;
+                    await new Promise(r => setTimeout(r, 2000));
+                } else {
+                    onNext();
+                }
             }
         } finally {
             if (!controller.signal.aborted && currentTrack?.id === trackId) {

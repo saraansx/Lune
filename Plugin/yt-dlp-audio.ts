@@ -36,7 +36,7 @@ export class YtDlpAudio {
     private lastRequestTime = 0;
 
     /** Queue to handle yt-dlp requests with priority support */
-    private taskQueue: Array<{ isPriority: boolean; resolve: () => void }> = [];
+    private taskQueue: Array<{ isPriority: boolean; resolve: (onDone: () => void) => void }> = [];
     private isProcessingQueue = false;
 
     /**
@@ -162,7 +162,7 @@ export class YtDlpAudio {
      * Rate limiter: waits if a request was made too recently.
      * Priority requests jump to the front of the queue to ensure immediate playback responsive.
      */
-    private async waitForRateLimit(isPriority = false): Promise<void> {
+    private async waitForRateLimit(isPriority = false): Promise<() => void> {
         return new Promise(resolve => {
             if (isPriority) {
                 // Priority tasks go to the front (but after any existing priority tasks to maintain order)
@@ -195,8 +195,11 @@ export class YtDlpAudio {
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             }
 
+            await new Promise<void>((resolve) => {
+                task.resolve(resolve);
+            });
+
             this.lastRequestTime = Date.now();
-            task.resolve();
         }
 
         this.isProcessingQueue = false;
@@ -226,16 +229,22 @@ export class YtDlpAudio {
             if (signal?.aborted) throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
 
             // Rate limit before making the request
-            await this.waitForRateLimit(isPriority);
+            const onDone = await this.waitForRateLimit(isPriority);
 
             // Check abort again after waiting
-            if (signal?.aborted) throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
+            if (signal?.aborted) {
+                onDone();
+                throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
+            }
 
             let lastError: any = null;
 
             // Try each player client in order — fall back on bot-detection errors
             for (const client of YtDlpAudio.PLAYER_CLIENTS) {
-                if (signal?.aborted) throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
+                if (signal?.aborted) {
+                    onDone();
+                    throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
+                }
 
                 try {
                     const child = this.ytdlpInstance.exec(`ytsearch1:${query}`, this.getYouTubeOptions(quality, formatExt, {
@@ -262,6 +271,7 @@ export class YtDlpAudio {
                     this.setCachedUrl(cacheKey, url);
                     console.log(`[YtDlp] Cached URL for "${tName}" by ${aName} [${quality||'default'}] via client="${client}" (${this.urlCache.size} entries)`);
 
+                    onDone();
                     return url;
 
                 } catch (err: any) {
@@ -281,6 +291,7 @@ export class YtDlpAudio {
 
             // All clients were exhausted
             console.error('YtDlpAudio execution error:', lastError);
+            onDone();
             throw new Error(`Failed to get stream URL: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
 
         } catch (error: any) {
@@ -302,7 +313,7 @@ export class YtDlpAudio {
         const query = `"${tName}" ${aName}`;
 
         // Rate limit before starting
-        await this.waitForRateLimit();
+        const onDone = await this.waitForRateLimit();
 
         let lastError: any = null;
 
@@ -313,6 +324,7 @@ export class YtDlpAudio {
             try {
                 console.log(`[YtDlp] Trying player_client="${client}" for download of "${tName}"`);
                 await this._downloadFromYouTube(query, outputPath, quality, formatExt, onProgress, signal, client);
+                onDone();
                 return outputPath;
             } catch (err: any) {
                 // Abort / cancel is always rethrown immediately
@@ -333,6 +345,7 @@ export class YtDlpAudio {
         }
 
         // All clients exhausted by bot detection
+        onDone();
         throw new Error(`Download failed after trying all clients: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
     }
 

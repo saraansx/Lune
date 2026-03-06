@@ -209,27 +209,11 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       const neighbors: LuneTrack[] = [];
       
-      // 1. Next Tracks (Queue or Forward History)
+      // 1. Next Track ONLY (either from forward history or next in queue)
       if (sessionIndex < sessionHistory.length - 1) {
           neighbors.push(sessionHistory[sessionIndex + 1]);
       } else if (activeQueue.length > 0) {
-          // Prefetch only the very next track in the queue to save network
-          const upcomingQueue = activeQueue.slice(0, 1);
-          for (const track of upcomingQueue) {
-              neighbors.push(track);
-          }
-      }
-
-      // 2. Previous Track (Backward History)
-      if (sessionIndex > 0) {
-          neighbors.push(sessionHistory[sessionIndex - 1]);
-      }
-
-      // 3. Pool System (Autoplay Queue recommendations)
-      // Limit prefetching to only 1 upcoming track from the pool
-      const upcomingPool = autoplayQueue.slice(0, 1);
-      for (const track of upcomingPool) {
-          neighbors.push(track);
+          neighbors.push(activeQueue[0]);
       }
 
       // Cleanup prefetch cache: remove non-neighbors OR stale URLs (older than 30m)
