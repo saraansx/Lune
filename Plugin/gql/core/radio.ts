@@ -4,6 +4,8 @@
  * official web player uses for "Song Radio". Falls back to the partner
  * GraphQL fetchSeedSuggestions query if spclient is unavailable.
  */
+import { getHash } from "./hash-registry.js";
+
 export class SpotifyRadioEndpoint {
     private accessToken: string;
 
@@ -123,13 +125,15 @@ export class SpotifyRadioEndpoint {
 
         // ── Fallback: partner API GraphQL fetchSeedSuggestions ────────────────
         try {
+            const hash = await getHash("Radio", "fetchSeedSuggestions");
+
             const body = {
                 variables: { uri: seedUri },
                 operationName: 'fetchSeedSuggestions',
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: '2e7a4e0d9c3f6a1b8e5d9c3a7b4e1d8c5f2a9e6b3d0c7f4a1e8b5d2c9f6a3e0b',
+                        sha256Hash: hash,
                     },
                 },
             };

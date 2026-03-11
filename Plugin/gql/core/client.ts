@@ -9,6 +9,7 @@ import { SpotifyLibraryEndpoint } from "./library.js";
 import { SpotifyRadioEndpoint } from "./radio.js";
 import { generateRandomUserAgent } from "./utils.js";
 import { HttpClient } from "./http-client.js";
+import { preloadHashes } from "./hash-registry.js";
 
 export default class SpotifyGqlApi {
     gqlClient!: HttpClient;
@@ -25,6 +26,10 @@ export default class SpotifyGqlApi {
 
     constructor(accessToken?: string | null, spDc?: string, spT?: string) {
         this.setAccessToken(accessToken, spDc, spT);
+        // Pre-warm the remote hash cache (fire and forget – won't block constructor)
+        preloadHashes().catch((err) =>
+            console.warn("[SpotifyGqlApi] Failed to preload remote hashes:", err)
+        );
     }
 
     setAccessToken(accessToken: string | null | undefined, spDc?: string, spT?: string) {

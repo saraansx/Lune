@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 import type {
     BrowseSectionItem,
     GqlAlbumSimplified,
@@ -216,6 +217,8 @@ class SpotifyBrowseEndpoint {
         spTCookie: string;
         limit?: number;
     }): Promise<BrowseSectionItem[]> {
+        const hash = await getHash("Browse", "home");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -229,8 +232,7 @@ class SpotifyBrowseEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "d62af2714f2623c923cc9eeca4b9545b4363abaa9188a9e94e2b63b823419a2c",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -274,6 +276,8 @@ class SpotifyBrowseEndpoint {
             offset?: number;
         }
     ): Promise<GqlPage<BrowseSectionItem["items"][number]>> {
+        const hash = await getHash("Browse", "homeSection");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -289,8 +293,7 @@ class SpotifyBrowseEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "d62af2714f2623c923cc9eeca4b9545b4363abaa9188a9e94e2b63b823419a2c",
+                            sha256Hash: hash,
                         },
                     },
                 },

@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 
 class SpotifyPlaylistEndpoint {
     gqlClient!: HttpClient;
@@ -9,6 +10,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async getPlaylist(playlistId: string): Promise<any> {
+        const hash = await getHash("Playlist", "fetchPlaylist");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -21,7 +24,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "7982b11e21535cd2594badc40030b745671b61a1fa66766e569d45e6364f3422",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -35,6 +38,8 @@ class SpotifyPlaylistEndpoint {
         playlistId: string,
         { offset = 0, limit = 50 }: { offset?: number; limit?: number } = {}
     ): Promise<any> {
+        const hash = await getHash("Playlist", "fetchPlaylist");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -47,7 +52,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "7982b11e21535cd2594badc40030b745671b61a1fa66766e569d45e6364f3422",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -58,6 +63,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async create(options: { name: string; description?: string; public?: boolean; collaborative?: boolean }) {
+        const hash = await getHash("Playlist", "createPlaylist");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -70,7 +77,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "8ae780f2d9f3f9e9d6d8d6f9d6f9d6f9d6f9d6f9d6f9d6f9d6f9d6f9d6f9d6f9", // Placeholder until verified
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -81,6 +88,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async addTracks(playlistId: string, { uris, position }: { uris: string[]; position?: number }) {
+        const hash = await getHash("Playlist", "addItemsToPlaylist");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -92,7 +101,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "602cc1832bc9c3b7a5a3a0e367878844be800ee74b4a1127083a21689252c80c",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -103,6 +112,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async removeTracks(playlistId: string, { uris }: { uris: string[] }) {
+        const hash = await getHash("Playlist", "removeItemsFromPlaylist");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -113,7 +124,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "df208d132ce310bc931e9c522ef65377fd354b600f13524a806951b14299be65",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -124,6 +135,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async follow(playlistIds: string[]) {
+        const hash = await getHash("Library", "addToLibrary");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -133,7 +146,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -144,6 +157,8 @@ class SpotifyPlaylistEndpoint {
     }
 
     async unfollow(playlistIds: string[]) {
+        const hash = await getHash("Library", "removeFromLibrary");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -153,7 +168,7 @@ class SpotifyPlaylistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                        sha256Hash: hash,
                     },
                 },
             },

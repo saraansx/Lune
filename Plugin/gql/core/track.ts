@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 
 class SpotifyTrackEndpoint {
     gqlClient!: HttpClient;
@@ -9,6 +10,8 @@ class SpotifyTrackEndpoint {
     }
 
     async save(trackIds: string[]) {
+        const hash = await getHash("Library", "addToLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -19,8 +22,7 @@ class SpotifyTrackEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -32,6 +34,8 @@ class SpotifyTrackEndpoint {
     }
 
     async unsave(trackIds: string[]) {
+        const hash = await getHash("Library", "removeFromLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -42,8 +46,7 @@ class SpotifyTrackEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -53,7 +56,10 @@ class SpotifyTrackEndpoint {
         SpotifyError.mayThrow(res);
         return res;
     }
+
     async getTrack(trackId: string) {
+        const hash = await getHash("Track", "getTrack");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -63,7 +69,7 @@ class SpotifyTrackEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "612585ae06ba435ad26369870deaae23b5c8800a256cd8a57e08eddc25a37294",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -74,6 +80,8 @@ class SpotifyTrackEndpoint {
     }
 
     async getCanvas(trackId: string) {
+        const hash = await getHash("Track", "canvas");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -83,7 +91,7 @@ class SpotifyTrackEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "575138ab27cd5c1b3e54da54d0a7cc8d85485402de26340c2145f0f6bb5e7a9f",
+                        sha256Hash: hash,
                     },
                 },
             },

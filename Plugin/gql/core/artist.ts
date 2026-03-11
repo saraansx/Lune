@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 
 class SpotifyArtistEndpoint {
     gqlClient!: HttpClient;
@@ -9,6 +10,8 @@ class SpotifyArtistEndpoint {
     }
 
     async follow(artistIds: string[]) {
+        const hash = await getHash("Library", "addToLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -19,8 +22,7 @@ class SpotifyArtistEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -32,6 +34,8 @@ class SpotifyArtistEndpoint {
     }
 
     async unfollow(artistIds: string[]) {
+        const hash = await getHash("Library", "removeFromLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -42,8 +46,7 @@ class SpotifyArtistEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -55,6 +58,8 @@ class SpotifyArtistEndpoint {
     }
 
     async getArtist(artistId: string) {
+        const hash = await getHash("Artist", "queryArtistOverview");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -66,7 +71,7 @@ class SpotifyArtistEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "dd14c6043d8127b56c5acbe534f6b3c58714f0c26bc6ad41776079ed52833a8f",
+                        sha256Hash: hash,
                     },
                 },
             },

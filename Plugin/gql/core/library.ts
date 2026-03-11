@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js";
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 import { Track } from "../types/web-api.js";
 import { GqlPage } from "../types/gql-api.js";
 
@@ -14,6 +15,8 @@ export class SpotifyLibraryEndpoint {
         offset = 0,
         limit = 50, // Higher default limit for liked songs
     }: { offset?: number; limit?: number } = {}): Promise<GqlPage<Track>> {
+        const hash = await getHash("Library", "fetchLibraryTracks");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 variables: {
@@ -24,7 +27,7 @@ export class SpotifyLibraryEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "087278b20b743578a6262c2b0b4bcd20d879c503cc359a2285baf083ef944240",
+                        sha256Hash: hash,
                     },
                 },
             },

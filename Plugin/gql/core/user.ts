@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 import type { GqlPage, GqlPlaylistSimplified } from "../types/gql-api.js";
 import type { Album, Artist, Track } from "../types/web-api.js";
 
@@ -11,6 +12,8 @@ class SpotifyUserEndpoint {
     }
 
     async me() {
+        const hash = await getHash("User", "profileAttributes");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 operationName: "profileAttributes",
@@ -18,7 +21,7 @@ class SpotifyUserEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "53bcb064f6cd18c23f752bc324a791194d20df612d8e1239c735144ab0399ced",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -35,6 +38,8 @@ class SpotifyUserEndpoint {
     }
 
     async attributes() {
+        const hash = await getHash("User", "accountAttributes");
+
         const res = await this.gqlClient.post("query", {
             body: {
                 operationName: "accountAttributes",
@@ -42,7 +47,7 @@ class SpotifyUserEndpoint {
                 extensions: {
                     persistedQuery: {
                         version: 1,
-                        sha256Hash: "24aaa3057b69fa91492de26841ad199bd0b330ca95817b7a4d6715150de01827",
+                        sha256Hash: hash,
                     },
                 },
             },
@@ -56,6 +61,8 @@ class SpotifyUserEndpoint {
         offset = 0,
         limit = 20,
     }: { offset?: number; limit?: number } = {}): Promise<GqlPage<Track>> {
+        const hash = await getHash("Library", "fetchLibraryTracks");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -67,8 +74,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "087278b20b743578a6262c2b0b4bcd20d879c503cc359a2285baf083ef944240",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -128,6 +134,8 @@ class SpotifyUserEndpoint {
     }: { offset?: number; limit?: number } = {}): Promise<
         GqlPage<GqlPlaylistSimplified>
     > {
+        const hash = await getHash("Library", "libraryV3");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -152,8 +160,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -212,6 +219,8 @@ class SpotifyUserEndpoint {
         offset = 0,
         limit = 20,
     }: { offset?: number; limit?: number } = {}): Promise<GqlPage<Album>> {
+        const hash = await getHash("Library", "libraryV3");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -236,8 +245,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -283,6 +291,8 @@ class SpotifyUserEndpoint {
         offset = 0,
         limit = 20,
     }: { offset?: number; limit?: number } = {}): Promise<GqlPage<Artist>> {
+        const hash = await getHash("Library", "libraryV3");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -307,8 +317,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "2c1a0e502d41b29990e1fc7b253a0f17f7841c626f4a52e4e47d2093329d78c3",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -346,6 +355,8 @@ class SpotifyUserEndpoint {
     }
 
     async isTracksSaved(ids: string[]): Promise<boolean[]> {
+        const hash = await getHash("Library", "isCurated");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -356,8 +367,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "e4ed1f91a2cc5415befedb85acf8671dc1a4bf3ca1a5b945a6386101a22e28a6",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -381,6 +391,8 @@ class SpotifyUserEndpoint {
             throw new Error("itemType must be 'artist' or 'album'");
         }
 
+        const hash = await getHash("Library", "areEntitiesInLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -391,8 +403,7 @@ class SpotifyUserEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "134337999233cc6fdd6b1e6dbf94841409f04a946c5c7b744b09ba0dfe5a85ed",
+                            sha256Hash: hash,
                         },
                     },
                 },

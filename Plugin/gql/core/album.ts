@@ -1,5 +1,6 @@
 import { HttpClient } from "./http-client.js"
 import { SpotifyError } from "./error.js";
+import { getHash } from "./hash-registry.js";
 import type { GqlAlbum, GqlPage } from "../types/gql-api.js";
 
 class SpotifyAlbumEndpoint {
@@ -15,6 +16,8 @@ class SpotifyAlbumEndpoint {
     }: { offset?: number; limit?: number } = {}): Promise<
         GqlPage<GqlAlbum>
     > {
+        const hash = await getHash("Album", "queryWhatsNewFeed");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -28,8 +31,7 @@ class SpotifyAlbumEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "3b53dede3c6054e8b7c962dd280eb6761c5d1c82b06b039f4110d76a62b4966b",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -84,6 +86,8 @@ class SpotifyAlbumEndpoint {
     }
 
     async save(albumIds: string[]) {
+        const hash = await getHash("Library", "addToLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -94,8 +98,7 @@ class SpotifyAlbumEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -107,8 +110,7 @@ class SpotifyAlbumEndpoint {
     }
 
     async getAlbum(albumId: string) {
-        // Updated working hash for getAlbum/queryAlbumTracks
-        const WORKING_HASH = "b9bfabef66ed756e5e13f68a942deb60bd4125ec1f1be8cc42769dc0259b4b10";
+        const hash = await getHash("Album", "getAlbum");
 
         try {
             const res = await this.gqlClient.post("query", {
@@ -123,7 +125,7 @@ class SpotifyAlbumEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash: WORKING_HASH,
+                            sha256Hash: hash,
                         },
                     },
                 },
@@ -131,7 +133,6 @@ class SpotifyAlbumEndpoint {
 
             SpotifyError.mayThrow(res);
 
-            // The browser reports getAlbum returns data under 'albumUnion' or 'albumV2'
             const albumData = res.data?.albumUnion || res.data?.albumV2 || res.data?.album;
             if (albumData) return albumData;
 
@@ -139,8 +140,10 @@ class SpotifyAlbumEndpoint {
         } catch (err) {
             console.log("[album.getAlbum] Fetch failed with primary hash:", err);
 
-            // Fallback: try queryAlbumTracks with same hash as it often works
+            // Fallback: try queryAlbumTracks with its own hash
             try {
+                const fallbackHash = await getHash("Album", "queryAlbumTracks");
+
                 const res = await this.gqlClient.post("query", {
                     body: {
                         variables: {
@@ -152,7 +155,7 @@ class SpotifyAlbumEndpoint {
                         extensions: {
                             persistedQuery: {
                                 version: 1,
-                                sha256Hash: WORKING_HASH,
+                                sha256Hash: fallbackHash,
                             },
                         },
                     },
@@ -170,6 +173,8 @@ class SpotifyAlbumEndpoint {
     }
 
     async unsave(albumIds: string[]) {
+        const hash = await getHash("Library", "removeFromLibrary");
+
         const res = await this.gqlClient
             .post("query", {
                 body: {
@@ -180,8 +185,7 @@ class SpotifyAlbumEndpoint {
                     extensions: {
                         persistedQuery: {
                             version: 1,
-                            sha256Hash:
-                                "a3c1ff58e6a36fec5fe1e3a193dc95d9071d96b9ba53c5ba9c1494fb1ee73915",
+                            sha256Hash: hash,
                         },
                     },
                 },
