@@ -46,7 +46,10 @@ const ArtistView: React.FC<ArtistViewProps> = ({
     const { 
         handleTrackSelect: onTrackSelect, 
         handleAddToQueue: onAddToQueue,
-        handlePlayNext: onPlayNext
+        handlePlayNext: onPlayNext,
+        activeBulkDownloads,
+        startBulkDownload,
+        stopBulkDownload
     } = usePlayer();
     const { lowDataMode } = usePlayback();
     const { t } = useLanguage();
@@ -59,7 +62,10 @@ const ArtistView: React.FC<ArtistViewProps> = ({
     const [localPlaylists, setLocalPlaylists] = useState<any[]>([]);
     const [trackPlaylists, setTrackPlaylists] = useState<string[]>([]);
     const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false);
+    const isDownloading = activeBulkDownloads.has(`artist-${artistId}`);
+    
+    // Reset effect removed - state is now global in PlayerContext
+
     const trackMenuRef = useRef<HTMLDivElement>(null);
 
     const api = useApi();
@@ -359,26 +365,14 @@ const ArtistView: React.FC<ArtistViewProps> = ({
     };
 
     const handleDownloadPopular = async () => {
-        if (!topTracks || topTracks.length === 0) return;
-        setIsDownloading(true);
-        for (const track of topTracks) {
-            try {
-                const formattedTrack = {
-                    id: track.id,
-                    name: track.name,
-                    artists: Array.isArray(track.artists) ? track.artists.map(a => typeof a === 'string' ? a : a.name) : [track.artist || 'Unknown Artist'],
-                    albumArt: track.albumArt || '',
-                    durationMs: track.durationMs || 0
-                };
-                await window.ipcRenderer.invoke('download-track', formattedTrack);
-            } catch (e) {
-                console.error("Failed to queue download for track", track.id, e);
-            }
+        if (!topTracks || topTracks.length === 0 || !artistId) return;
+
+        const id = `artist-${artistId}`;
+        if (isDownloading) {
+            stopBulkDownload(id);
+        } else {
+            startBulkDownload(id, topTracks);
         }
-        window.dispatchEvent(new Event('lune:download-update'));
-        
-        // Keep spinner for feedback
-        setTimeout(() => setIsDownloading(false), 2500);
     };
 
     const handleAlbumClick = (album: any) => {
