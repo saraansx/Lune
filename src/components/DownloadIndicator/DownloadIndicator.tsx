@@ -48,6 +48,12 @@ const initDownloadState = () => {
     const ipcRenderer = window.ipcRenderer;
     if (ipcRenderer) {
         ipcRenderer.on('download-progress', (_event: any, data: { id: string, progress: number }) => {
+            if (data.progress === -1) {
+                delete downloadStateObj.downloading[data.id];
+                notifyListeners();
+                return;
+            }
+
             downloadStateObj.downloading[data.id] = data.progress;
             
             if (data.progress >= 100) {
@@ -156,13 +162,17 @@ export const DownloadIndicator: React.FC<{ trackId: string }> = React.memo(({ tr
 
     // Default to 0 to prevent NaN in strokeDashoffset
     const progress = currentProgress || 0; 
+    const isInitializing = progress > 0 && progress < 1;
     
     const radius = 8;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     return (
-        <div title={`Downloading... ${Math.round(progress)}%`} style={{ 
+        <div 
+            title={isInitializing ? "Requesting..." : `Downloading... ${Math.round(progress)}%`} 
+            className={isInitializing ? "download-pulse" : ""}
+            style={{ 
             display: 'inline-flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
