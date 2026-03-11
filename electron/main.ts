@@ -59,12 +59,25 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
-const store = new Store<StoreSchema>({ schema: schema as any });
-let win: BrowserWindow | null
-let tray: Tray | null = null;
-let isQuitting = false;
+const gotTheLock = app.requestSingleInstanceLock()
 
-function createWindow() {
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.show()
+      win.focus()
+    }
+  })
+
+  const store = new Store<StoreSchema>({ schema: schema as any });
+  let win: BrowserWindow | null
+  let tray: Tray | null = null;
+  let isQuitting = false;
+
+  function createWindow() {
   const bounds = store.get('windowBounds');
 
   // In packaged mode, the icon is in extraResources folder; in dev mode, use src/assets
@@ -446,21 +459,21 @@ app.whenReady().then(async () => {
     callback({ cancel: false, responseHeaders });
   });
 });
+  app.on('before-quit', () => {
+      isQuitting = true;
+      clearRPC();
+      globalShortcut.unregisterAll();
+      activeSearches.forEach(s => s.controller.abort());
+      activeDownloads.forEach(c => c.abort());
+  });
 
-app.on('before-quit', () => {
-    isQuitting = true;
-    clearRPC();
-    globalShortcut.unregisterAll();
-    activeSearches.forEach(s => s.controller.abort());
-    activeDownloads.forEach(c => c.abort());
-});
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+  });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
-})
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+} // End of else (gotTheLock)
