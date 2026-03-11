@@ -385,6 +385,8 @@ const YtdlpUpdateModal = ({ updateStatus, setYtdlpStatus }: { updateStatus: any,
   );
 };
 
+import StarPopup from './components/StarPopup/StarPopup';
+
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
@@ -675,6 +677,7 @@ const App = () => {
         />
         <MajorUpdateModal updateStatus={appUpdateStatus} setAppUpdateStatus={setAppUpdateStatus} />
         <YtdlpUpdateModal updateStatus={ytdlpStatus} setYtdlpStatus={setYtdlpStatus} />
+        <StarPopup />
       </ApiProvider>
     );
   }

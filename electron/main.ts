@@ -77,6 +77,10 @@ if (!gotTheLock) {
   // Track current app version
   store.set('app_version', app.getVersion());
 
+  // Increment startup count
+  const count = (store.get('startup_count') || 0) + 1;
+  store.set('startup_count', count);
+
   let win: BrowserWindow | null
   let tray: Tray | null = null;
   let isQuitting = false;
