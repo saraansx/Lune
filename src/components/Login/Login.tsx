@@ -1,7 +1,7 @@
 
 import './Login.css';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import mainLogo from '../../assets/Main.png';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -11,8 +11,15 @@ interface LoginProps {
 
 const Login = ({ onLoginSuccess }: LoginProps) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [appVersion, setAppVersion] = useState('1.0.0');
     const [error, setError] = useState<string | null>(null);
     const { t } = useLanguage();
+
+    useEffect(() => {
+        window.ipcRenderer.invoke('get-app-version').then((v: any) => {
+            if (v?.version) setAppVersion(v.version);
+        });
+    }, []);
 
     const handleLogin = async () => {
         setIsLoading(true);
@@ -82,7 +89,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
 
             {/* Version Footer */}
             <div className="login-footer">
-                <span>V1.0.0</span>
+                <span>V{appVersion}</span>
             </div>
         </main>
     );

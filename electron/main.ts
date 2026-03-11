@@ -73,6 +73,19 @@ if (!gotTheLock) {
   })
 
   const store = new Store<StoreSchema>({ schema: schema as any });
+  
+  // Handle credentials on update: 
+  // If the version has changed, clear the tokens to force a fresh login
+  const lastVersion = store.get('app_version');
+  const currentVersion = app.getVersion();
+  if (lastVersion && lastVersion !== currentVersion) {
+      console.log(`[Main] App updated from ${lastVersion} to ${currentVersion}. Clearing credentials.`);
+      store.delete('spotify_access_token');
+      store.delete('spotify_cookies');
+      store.delete('spotify_expires_at');
+  }
+  store.set('app_version', currentVersion);
+
   let win: BrowserWindow | null
   let tray: Tray | null = null;
   let isQuitting = false;

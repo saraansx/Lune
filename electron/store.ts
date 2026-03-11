@@ -33,6 +33,7 @@ export interface StoreSchema {
     autoUpdateYtdlp?: boolean;
     lastYtdlpUpdate?: number;
     autoUpdateApp?: boolean;
+    app_version?: string;
 }
 
 export const schema = {
@@ -74,4 +75,5 @@ export const schema = {
     autoUpdateYtdlp: { type: 'boolean', default: true },
     lastYtdlpUpdate: { type: 'number', default: 0 },
     autoUpdateApp: { type: 'boolean', default: true },
+    app_version: { type: 'string' },
 } as const;
