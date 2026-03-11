@@ -38,12 +38,17 @@ interface PlayerContextType {
   handlePrevTrack: (currentTime?: number) => void;
   formatTrackForPlayer: (t: any) => LuneTrack;
   clearHistory: () => Promise<void>;
+  // Bulk Download Support
+  activeBulkDownloads: Set<string>;
+  startBulkDownload: (id: string, tracks: LuneTrack[]) => Promise<void>;
+  stopBulkDownload: (id: string) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { autoplayEnabled, lowDataMode } = usePlayback();
+  const { autoplayEnabled, lowDataMode, audioQuality, audioFormat } = usePlayback();
+
   // Audio State
   const [currentTrack, setCurrentTrack] = useState<LuneTrack | null>(() => {
     try {
@@ -117,6 +122,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [autoplayQueue, setAutoplayQueue] = useState<LuneTrack[]>([]);
   const [isRadioLoading, setIsRadioLoading] = useState(false);
 
+  // Bulk Download State (Persistent across navigation)
+  const [activeBulkDownloads, setActiveBulkDownloads] = useState<Set<string>>(new Set());
+  const bulkAbortControllers = React.useRef<Record<string, AbortController>>({});
+
   // UI State related to player
   const [showQueue, setShowQueue] = useState(false);
   const [showFullNowPlaying, setShowFullNowPlaying] = useState(false);
@@ -146,26 +155,36 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     localStorage.setItem('lune_is_loop', isLoop);
   }, [isLoop]);
 
+  // Clear prefetch cache when quality settings change to prevent "Quality Confusion"
+  const initialSettingsMount = React.useRef(true);
+  useEffect(() => {
+    if (initialSettingsMount.current) {
+        initialSettingsMount.current = false;
+        return;
+    }
+    setPrefetchMap({});
+    window.ipcRenderer.invoke('clear-cache').catch(() => {});
+    console.log('[PlayerContext] 🧹 Quality settings changed, clearing prefetch cache.');
+  }, [lowDataMode, audioQuality, audioFormat]);
+
   useEffect(() => {
     localStorage.setItem('lune_session_history', JSON.stringify(sessionHistory.slice(-50)));
     localStorage.setItem('lune_session_index', String(sessionIndex));
   }, [sessionHistory, sessionIndex]);
 
-  // Consolidate persistence with debouncing and capping
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Cap at 200 items to avoid massive localStorage strings and disk I/O lag
-      const cappedQueue = queue.slice(0, 200);
-      localStorage.setItem('lune_queue', JSON.stringify(cappedQueue));
-    }, 1000);
+      const quickRecoveryQueue = queue.slice(0, 25);
+      localStorage.setItem('lune_queue', JSON.stringify(quickRecoveryQueue));
+    }, 2000); // 2s debounce to avoid process spikes during rapid playlist changes
     return () => clearTimeout(timer);
   }, [queue]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const cappedShuffled = shuffledQueue.slice(0, 200);
-      localStorage.setItem('lune_shuffled_queue', JSON.stringify(cappedShuffled));
-    }, 1000);
+      const quickRecoveryShuffled = shuffledQueue.slice(0, 25);
+      localStorage.setItem('lune_shuffled_queue', JSON.stringify(quickRecoveryShuffled));
+    }, 2000);
     return () => clearTimeout(timer);
   }, [shuffledQueue]);
 
@@ -239,33 +258,40 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return changed ? nextMap : prev;
       });
 
+      const fetchedInThisCycle = new Set<string>();
       for (const track of neighbors) {
         if (isCancelled) return;
         if (!track) continue;
-        const existing = prefetchMap[track.id];
-        const isStale = existing ? (Date.now() - existing.timestamp) > STALE_TIME : true;
+        
+        // We must check if it was already fetched in this loop or exists in map
+        let alreadyExists = false;
+        setPrefetchMap(currentMap => {
+            const existing = currentMap[track.id];
+            const isStale = existing ? (Date.now() - existing.timestamp) > STALE_TIME : true;
+            if (existing && !isStale) alreadyExists = true;
+            return currentMap; 
+        });
 
-        if (!existing || isStale) {
-          try {
+        if (alreadyExists || fetchedInThisCycle.has(track.id)) continue;
+
+        try {
             logToSystem(`[Prefetch] 🛰️ Fetching neighbor: "${track.name}" (${track.id})`);
-            const url = await window.ipcRenderer.invoke('get-stream-url', track.name, track.artist, track.id, false);
+            const url = await window.ipcRenderer.invoke('get-stream-url', track.name, track.artist, track.id, false, `prefetch-${track.id}`);
             if (isCancelled) return;
             if (url) {
+              fetchedInThisCycle.add(track.id);
               setPrefetchMap(prev => {
                 const updated = { ...prev, [track.id]: { url, timestamp: Date.now() } };
-                // Cap cache at 5 entries to prevent unbounded growth in memory
                 const entries = Object.entries(updated).sort((a, b) => b[1].timestamp - a[1].timestamp);
                 return Object.fromEntries(entries.slice(0, 5));
               });
               logToSystem(`[Prefetch] ✅ Cached: "${track.name}"`);
             }
           } catch (err) {
-            // Likely aborted due to user skip, ignore
+            // Likely aborted
           }
           if (isCancelled) return;
-          // If we have multiple neighbors, small delay between each to avoid process spikes
           await new Promise(r => setTimeout(r, 100));
-        }
       }
     };
 
@@ -315,7 +341,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const handleTrackSelect = (track: any, playlistTracks?: any[], navType: 'manual' | 'next' | 'prev' | 'loop-restart' = 'manual') => {
     // Abort the previous track's stream fetch to prevent memory/ratelimit leaks
     if (currentTrack?.id) {
-       window.ipcRenderer.invoke('cancel-stream', currentTrack.id).catch(() => {});
+       window.ipcRenderer.invoke('cancel-stream', currentTrack.id, 'player').catch(() => {});
     }
 
     const formattedTrack = formatTrackForPlayer(track);
@@ -423,9 +449,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } else {
       const trackToRemove = queue[index];
       setQueue(prev => prev.filter((_, i) => i !== index));
-      if (isShuffle) {
-        setShuffledQueue(prev => prev.filter(t => t.queueId !== trackToRemove.queueId));
-      }
+      setShuffledQueue(prev => prev.filter(t => t.queueId !== trackToRemove.queueId));
     }
   };
 
@@ -571,6 +595,76 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const startBulkDownload = async (id: string, tracks: LuneTrack[]) => {
+    if (activeBulkDownloads.has(id)) return;
+
+    const controller = new AbortController();
+    bulkAbortControllers.current[id] = controller;
+    
+    setActiveBulkDownloads(prev => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+    });
+
+    try {
+        console.log(`[BulkDownload] Starting task for context: ${id} (${tracks.length} tracks)`);
+        
+        for (let i = 0; i < tracks.length; i++) {
+            if (controller.signal.aborted) break;
+
+            const track = tracks[i];
+            try {
+                // Check if already downloaded
+                const exists = await window.ipcRenderer.invoke('check-is-downloaded', track.id);
+                if (exists) continue;
+
+                if (controller.signal.aborted) break;
+
+                // Download
+                await window.ipcRenderer.invoke('download-track', {
+                    id: track.id,
+                    name: track.name,
+                    artists: Array.isArray(track.artists) ? track.artists.map((a: any) => typeof a === 'string' ? a : a.name) : [track.artist || 'Unknown Artist'],
+                    albumArt: track.albumArt || '',
+                    durationMs: track.durationMs
+                });
+
+                if (controller.signal.aborted) break;
+
+                // Delay
+                if (i < tracks.length - 1) {
+                    await new Promise(resolve => {
+                        const timeout = setTimeout(resolve, 2000);
+                        controller.signal.addEventListener('abort', () => {
+                            clearTimeout(timeout);
+                            resolve(null);
+                        }, { once: true });
+                    });
+                }
+            } catch (err) {
+                console.error(`[BulkDownload] Failed track ${track.id}`, err);
+            }
+        }
+    } finally {
+        console.log(`[BulkDownload] Task finished or stopped for: ${id}`);
+        delete bulkAbortControllers.current[id];
+        setActiveBulkDownloads(prev => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+        });
+        window.dispatchEvent(new Event('lune:download-update'));
+    }
+  };
+
+  const stopBulkDownload = (id: string) => {
+    if (bulkAbortControllers.current[id]) {
+        console.log(`[BulkDownload] Aborting task for context: ${id}`);
+        bulkAbortControllers.current[id].abort();
+    }
+  };
+
   return (
     <PlayerContext.Provider value={{
       currentTrack,
@@ -607,7 +701,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       handleNextTrack,
       handlePrevTrack,
       formatTrackForPlayer,
-      clearHistory
+      clearHistory,
+      activeBulkDownloads,
+      startBulkDownload,
+      stopBulkDownload
     }}>
       {children}
     </PlayerContext.Provider>
