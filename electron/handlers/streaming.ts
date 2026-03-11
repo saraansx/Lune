@@ -44,7 +44,7 @@ export function registerStreamingHandlers() {
         return defaultDir;
     };
 
-    ipcMain.handle('get-stream-url', async (_event, trackName: string, artistName: string, trackId: string = 'unknown', isPriority: boolean = false) => {
+    ipcMain.handle('get-stream-url', async (_event, trackName: string, artistName: string, trackId: string = 'unknown', isPriority: boolean = false, requester: string = 'unknown') => {
         try {
             if (trackId && trackId !== 'unknown' && db) {
                 const local = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(trackId);
@@ -56,25 +56,40 @@ export function registerStreamingHandlers() {
                 }
             }
 
-            if (activeSearches.has(trackId)) {
-                return await activeSearches.get(trackId)!.promise;
+            // Use isPriority to infer requester if not provided (old frontend support)
+            const rId = requester !== 'unknown' ? requester : (isPriority ? 'player' : 'prefetch');
+
+            let search = activeSearches.get(trackId);
+            if (!search) {
+                const controller = new AbortController();
+                const lowDataMode = store.get('lowDataMode') || false;
+                const audioQuality = lowDataMode ? '96' : (store.get('audioQuality') || '128');
+                const audioFormat = store.get('audioFormat') || 'mp4';
+
+                console.log(`[Main] Starting new stream fetch for: ${trackName} - ${artistName} (ID: ${trackId})`);
+
+                const promise = ytDlp.getStreamUrl(trackName, artistName, audioQuality, audioFormat, controller.signal, isPriority);
+                search = { controller, promise, requesters: new Set() };
+                activeSearches.set(trackId, search);
+            } else {
+                console.log(`[Main] Joining existing stream fetch for: ${trackName} (ID: ${trackId}) [Count: ${search.requesters.size}]`);
             }
 
-            const controller = new AbortController();
-            const lowDataMode = store.get('lowDataMode') || false;
-            const audioQuality = lowDataMode ? '96' : (store.get('audioQuality') || '128');
-            const audioFormat = store.get('audioFormat') || 'mp4';
-
-            console.log(`[Main] Requesting stream for: ${trackName} - ${artistName} | Max Quality: ${audioQuality} kbps | Format: ${audioFormat}`);
-
-            const promise = ytDlp.getStreamUrl(trackName, artistName, audioQuality, audioFormat, controller.signal, isPriority);
-            activeSearches.set(trackId, { controller, promise });
+            search.requesters.add(rId);
 
             try {
-                const url = await promise;
+                const url = await search.promise;
                 return url;
             } finally {
-                activeSearches.delete(trackId);
+                // Cleanup after natural completion OR abortion
+                const currentSearch = activeSearches.get(trackId);
+                if (currentSearch) {
+                    currentSearch.requesters.delete(rId);
+                    if (currentSearch.requesters.size === 0) {
+                        activeSearches.delete(trackId);
+                        console.log(`[Main] Fetch completed and cleared for track: ${trackId}`);
+                    }
+                }
             }
         } catch (error: any) {
             if (error.name === 'AbortError') {
@@ -85,12 +100,21 @@ export function registerStreamingHandlers() {
         }
     });
 
-    ipcMain.handle('cancel-stream', (_event, trackId: string) => {
-        if (activeSearches.has(trackId)) {
-            activeSearches.get(trackId)!.controller.abort();
-            activeSearches.delete(trackId);
-            console.log(`[Main] Aborted stream fetch for track: ${trackId}`);
-            return true;
+    ipcMain.handle('cancel-stream', (_event, trackId: string, requester: string = 'unknown') => {
+        const search = activeSearches.get(trackId);
+        if (search) {
+            const rId = requester !== 'unknown' ? requester : 'player'; 
+            
+            search.requesters.delete(rId);
+            console.log(`[Main] Requester "${rId}" cancelled for track: ${trackId}. Remaining: ${search.requesters.size}`);
+
+            if (search.requesters.size === 0) {
+                search.controller.abort();
+                activeSearches.delete(trackId);
+                console.log(`[Main] All requesters cancelled. Aborting fetch for track: ${trackId}`);
+                return true;
+            }
+            return false;
         }
         return false;
     });
@@ -138,8 +162,14 @@ export function registerStreamingHandlers() {
 
     ipcMain.handle('download-track', async (_event, track) => {
         if (!db) return false;
+        const normalized = normalizeTrackForDB(track);
+        
+        // Prevent multiple simultaneous downloads for the same track
+        if (activeDownloads.has(normalized.id)) {
+            return true;
+        }
+
         try {
-            const normalized = normalizeTrackForDB(track);
             const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(normalized.id);
             if (existing && existing.localPath) {
                 if (fs.existsSync(existing.localPath)) {
@@ -157,6 +187,13 @@ export function registerStreamingHandlers() {
 
             const controller = new AbortController();
             activeDownloads.set(normalized.id, controller);
+
+            // Notify frontend immediately that download has started (fetching info phase)
+            BrowserWindow.getAllWindows().forEach(w => w.webContents.send('download-progress', {
+                id: normalized.id,
+                name: normalized.name,
+                progress: 0.1 // Small non-zero to trigger the UI indicator
+            }));
 
             try {
                 const lowDataMode = store.get('lowDataMode') || false;
@@ -196,6 +233,12 @@ export function registerStreamingHandlers() {
             return true;
         } catch (error) {
             console.error('Download Track Error', error);
+            // Notify frontend that download failed to prevent "Ghost UI"
+            BrowserWindow.getAllWindows().forEach(w => w.webContents.send('download-progress', {
+                id: normalized.id,
+                name: normalized.name,
+                progress: -1 // Special value for error
+            }));
             return false;
         }
     });
