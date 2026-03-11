@@ -2,9 +2,9 @@
   "name": "lune",
   "license": "GPL-3.0",
   "private": true,
-  "version": "1.0.1",
-  "buildVersion": "2",
-  "description": "Lune Music Player",
+  "version": "1.0.2",
+  "buildVersion": "3",
+  "description": "Lune Open Source Music Player",
   "author": "Lune Devs",
   "type": "module",
   "scripts": {

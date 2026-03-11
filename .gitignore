@@ -5,7 +5,6 @@ release
 *.log
 .env
 .ds_store
-.vscode
 .idea
 *.sqlite
 *.sqlite-journal
