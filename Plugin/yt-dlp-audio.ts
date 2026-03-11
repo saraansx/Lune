@@ -93,7 +93,6 @@ export class YtDlpAudio {
             geoBypass: true,
             noCheckCertificates: true,
             extractorArgs: `youtube:player_client=${playerClient}`,
-            jsRuntimes: 'node',
             ...extra
         };
 
@@ -231,69 +230,68 @@ export class YtDlpAudio {
             // Rate limit before making the request
             const onDone = await this.waitForRateLimit(isPriority);
 
-            // Check abort again after waiting
-            if (signal?.aborted) {
-                onDone();
-                throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
-            }
-
-            let lastError: any = null;
-
-            // Try each player client in order — fall back on bot-detection errors
-            for (const client of YtDlpAudio.PLAYER_CLIENTS) {
+            try {
+                // Check abort again after waiting
                 if (signal?.aborted) {
-                    onDone();
                     throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
                 }
 
-                try {
-                    const child = this.ytdlpInstance.exec(`ytsearch1:${query}`, this.getYouTubeOptions(quality, formatExt, {
-                        getUrl: true,
-                        quiet: true
-                    }, client));
+                let lastError: any = null;
 
-                    if (signal) {
-                        const onAbort = () => {
-                            try { child.cancel(); } catch (e) { /* already closed */ }
-                        };
-                        signal.addEventListener('abort', onAbort);
-                        child.finally(() => signal.removeEventListener('abort', onAbort)).catch(() => {});
+                // Try each player client in order — fall back on bot-detection errors
+                for (const client of YtDlpAudio.PLAYER_CLIENTS) {
+                    if (signal?.aborted) {
+                        throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
                     }
 
-                    const rawOutput = await child;
-                    const url = (typeof rawOutput === 'string' ? rawOutput : (rawOutput as any).stdout || '').trim();
+                    try {
+                        const child = this.ytdlpInstance.exec(`ytsearch1:${query}`, this.getYouTubeOptions(quality, formatExt, {
+                            getUrl: true,
+                            quiet: true
+                        }, client));
 
-                    if (!url || !url.startsWith('http')) {
-                        throw new Error(`Incomplete URL from yt-dlp: ${url || '[empty]'}`);
+                        if (signal) {
+                            const onAbort = () => {
+                                try { child.cancel(); } catch (e) { /* already closed */ }
+                            };
+                            signal.addEventListener('abort', onAbort);
+                            child.finally(() => signal.removeEventListener('abort', onAbort)).catch(() => {});
+                        }
+
+                        const rawOutput = await child;
+                        const url = (typeof rawOutput === 'string' ? rawOutput : (rawOutput as any).stdout || '').trim();
+
+                        if (!url || !url.startsWith('http')) {
+                            throw new Error(`Incomplete URL from yt-dlp: ${url || '[empty]'}`);
+                        }
+
+                        // Cache the successful result
+                        this.setCachedUrl(cacheKey, url);
+                        console.log(`[YtDlp] Cached URL for "${tName}" by ${aName} [${quality||'default'}] via client="${client}" (${this.urlCache.size} entries)`);
+
+                        return url;
+
+                    } catch (err: any) {
+                        if (err.isCanceled || signal?.aborted || err.name === 'AbortError') throw err;
+
+                        lastError = err;
+
+                        if (this.isBotDetectionError(err)) {
+                            console.warn(`[YtDlp] Bot detection with client="${client}", trying next...`);
+                            continue; // try the next client
+                        }
+
+                        // Non-bot error — don't retry
+                        throw err;
                     }
-
-                    // Cache the successful result
-                    this.setCachedUrl(cacheKey, url);
-                    console.log(`[YtDlp] Cached URL for "${tName}" by ${aName} [${quality||'default'}] via client="${client}" (${this.urlCache.size} entries)`);
-
-                    onDone();
-                    return url;
-
-                } catch (err: any) {
-                    if (err.isCanceled || signal?.aborted || err.name === 'AbortError') throw err;
-
-                    lastError = err;
-
-                    if (this.isBotDetectionError(err)) {
-                        console.warn(`[YtDlp] Bot detection with client="${client}", trying next...`);
-                        continue; // try the next client
-                    }
-
-                    // Non-bot error — don't retry
-                    throw err;
                 }
+
+                // All clients were exhausted
+                console.error('YtDlpAudio execution error:', lastError);
+                throw new Error(`Failed to get stream URL: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
+            } finally {
+                onDone();
             }
-
-            // All clients were exhausted
-            console.error('YtDlpAudio execution error:', lastError);
-            onDone();
-            throw new Error(`Failed to get stream URL: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
-
         } catch (error: any) {
             if (error.isCanceled || signal?.aborted || error.name === 'AbortError') {
                 const abortError = new Error('AbortError');
@@ -315,38 +313,40 @@ export class YtDlpAudio {
         // Rate limit before starting
         const onDone = await this.waitForRateLimit();
 
-        let lastError: any = null;
+        try {
+            let lastError: any = null;
 
-        // Try each player client in order — same retry strategy as getStreamUrl
-        for (const client of YtDlpAudio.PLAYER_CLIENTS) {
-            if (signal?.aborted) throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
+            // Try each player client in order — same retry strategy as getStreamUrl
+            for (const client of YtDlpAudio.PLAYER_CLIENTS) {
+                if (signal?.aborted) throw Object.assign(new Error('AbortError'), { name: 'AbortError' });
 
-            try {
-                console.log(`[YtDlp] Trying player_client="${client}" for download of "${tName}"`);
-                await this._downloadFromYouTube(query, outputPath, quality, formatExt, onProgress, signal, client);
-                onDone();
-                return outputPath;
-            } catch (err: any) {
-                // Abort / cancel is always rethrown immediately
-                if (err.isCanceled || signal?.aborted || err.message === 'Download Aborted' || err.name === 'AbortError') {
-                    throw err;
+                try {
+                    console.log(`[YtDlp] Trying player_client="${client}" for download of "${tName}"`);
+                    await this._downloadFromYouTube(query, outputPath, quality, formatExt, onProgress, signal, client);
+                    return outputPath;
+                } catch (err: any) {
+                    // Abort / cancel is always rethrown immediately
+                    if (err.isCanceled || signal?.aborted || err.message === 'Download Aborted' || err.name === 'AbortError') {
+                        throw err;
+                    }
+
+                    lastError = err;
+
+                    if (this.isBotDetectionError(err)) {
+                        console.warn(`[YtDlp] Bot detection during download with client="${client}", trying next...`);
+                        continue; // try next client
+                    }
+
+                    // Any other error (e.g. track not found) — don't retry
+                    throw new Error(`yt-dlp exited with error: ${err.message}`);
                 }
-
-                lastError = err;
-
-                if (this.isBotDetectionError(err)) {
-                    console.warn(`[YtDlp] Bot detection during download with client="${client}", trying next...`);
-                    continue; // try next client
-                }
-
-                // Any other error (e.g. track not found) — don't retry
-                throw new Error(`yt-dlp exited with error: ${err.message}`);
             }
-        }
 
-        // All clients exhausted by bot detection
-        onDone();
-        throw new Error(`Download failed after trying all clients: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
+            // All clients exhausted by bot detection
+            throw new Error(`Download failed after trying all clients: ${lastError instanceof Error ? lastError.message : String(lastError)}`);
+        } finally {
+            onDone();
+        }
     }
 
     private _downloadFromYouTube(query: string, outputPath: string, quality?: string, formatExt?: string, onProgress?: (progress: number) => void, signal?: AbortSignal, playerClient = 'mweb,default'): Promise<void> {
