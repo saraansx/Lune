@@ -139,7 +139,7 @@ const Playback: React.FC = () => {
     ];
 
     const FORMAT_OPTIONS: { value: any; label: string }[] = [
-        { value: 'mp4', label: 'mp4 / m4a' },
+        { value: 'mp4', label: 'm4a (MP4 audio)' },
         { value: 'webm', label: 'webm' }
     ];
 
