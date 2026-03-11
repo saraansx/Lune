@@ -34,7 +34,10 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken: _accessToken, cookies:
         setIsShuffle,
         handleTrackSelect: onTrackSelect,
         handleAddToQueue: onAddToQueue,
-        handlePlayNext: onPlayNext
+        handlePlayNext: onPlayNext,
+        activeBulkDownloads,
+        startBulkDownload,
+        stopBulkDownload
     } = usePlayer();
     const { lowDataMode } = usePlayback();
     const { t } = useLanguage();
@@ -55,11 +58,12 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken: _accessToken, cookies:
     const [localPlaylists, setLocalPlaylists] = useState<any[]>([]);
     const [trackPlaylists, setTrackPlaylists] = useState<string[]>([]);
     const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false);
+    const isDownloading = activeBulkDownloads.has(playlistId || '');
     const [isInLocalLibrary, setIsInLocalLibrary] = useState(false);
+
+    // Reset downloading status when playlist changes effect removed because state is now global
     const containerRef = useRef<HTMLDivElement | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
-    const cancelDownloadRef = useRef<boolean>(false);
     const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
     const containerCallbackRef = useCallback((el: HTMLDivElement | null) => {
         containerRef.current = el;
@@ -458,59 +462,13 @@ const Playlist: React.FC<PlaylistProps> = ({ accessToken: _accessToken, cookies:
     };
 
     const handleDownloadAll = async () => {
-        if (!tracks || tracks.length === 0) return;
+        if (!tracks || tracks.length === 0 || !playlistId) return;
 
-        // If already downloading, clicking again cancels the queue
         if (isDownloading) {
-            cancelDownloadRef.current = true;
-            setIsDownloading(false);
-            return;
-        }
-
-        setIsDownloading(true);
-        cancelDownloadRef.current = false;
-
-        for (let i = 0; i < tracks.length; i++) {
-            if (cancelDownloadRef.current) {
-                console.log('[Playlist] Bulk download cancelled by user.');
-                break;
-            }
-
-            const track = tracks[i];
-            try {
-                // Skip already-downloaded tracks (no yt-dlp request needed)
-                const alreadyDownloaded = await window.ipcRenderer.invoke('check-is-downloaded', track.id);
-                if (alreadyDownloaded) continue;
-
-                if (cancelDownloadRef.current) break;
-
-                // Ensure the track object matches the format expected by the downloader
-                const formattedTrack = {
-                    id: track.id,
-                    name: track.name,
-                    artists: Array.isArray(track.artists) ? track.artists.map(a => typeof a === 'string' ? a : a.name) : [track.artist || 'Unknown Artist'],
-                    albumArt: track.albumArt || playlist?.coverUrl || '',
-                    durationMs: track.durationMs
-                };
-                await window.ipcRenderer.invoke('download-track', formattedTrack);
-
-                if (cancelDownloadRef.current) break;
-
-                // Small delay between downloads to avoid YouTube rate-limiting
-                // Only wait if there are more tracks to download
-                if (i < tracks.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
-            } catch (e) {
-                console.error("Failed to queue download for track", track.id, e);
-            }
-        }
-        
-        window.dispatchEvent(new Event('lune:download-update'));
-        
-        // Clear downloading state unless it was already cancelled
-        if (!cancelDownloadRef.current) {
-            setTimeout(() => setIsDownloading(false), 2500);
+            stopBulkDownload(playlistId);
+        } else {
+            // Transform tracks to base LuneTrack if needed and start
+            startBulkDownload(playlistId, tracks);
         }
     };
 
