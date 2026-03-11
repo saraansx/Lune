@@ -9,4 +9,4 @@ release
 *.sqlite
 *.sqlite-journal
 yt-cookies.txt
-downloads
+/downloads
