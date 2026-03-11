@@ -72,9 +72,9 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
     const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
     const gainNodeRef = useRef<GainNode | null>(null);
     const analyzerRef = useRef<AnalyserNode | null>(null);
-    const normalizationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const normalizationIntervalRef = useRef<number | null>(null);
     const eqBandsRef = useRef<BiquadFilterNode[]>([]);
-    const rpcSyncIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const rpcSyncIntervalRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (!audioRef.current) return;
@@ -203,7 +203,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             let logThrottle = 0;
 
             cleanupInterval();
-            normalizationIntervalRef.current = setInterval(() => {
+            normalizationIntervalRef.current = window.setInterval(() => {
                 analyzer.getByteFrequencyData(dataArray);
                 let sum = 0;
                 for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
@@ -337,7 +337,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
     const activeTrackId = useRef<string | null>(null);
     const streamRetryCount = useRef(0);
     const isRadioFetching = useRef(false);
-    const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const progressTimeoutRef = useRef<number | null>(null);
 
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const [localPlaylists, setLocalPlaylists] = useState<any[]>([]);
@@ -590,7 +590,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
 
         setIsLoading(true);
         try {
-            const url = await window.ipcRenderer.invoke('get-stream-url', currentTrack.name, currentTrack.artist, trackId, true);
+            const url = await window.ipcRenderer.invoke('get-stream-url', currentTrack.name, currentTrack.artist, trackId, true, 'player');
             
             if (controller.signal.aborted) return;
 
@@ -622,7 +622,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                 }
             }
         } finally {
-            if (!controller.signal.aborted && currentTrack?.id === trackId) {
+            if (currentTrack?.id === trackId) {
                 setIsLoading(false);
             }
         }
@@ -751,7 +751,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             updateRPC().catch(err => console.warn('[Discord RPC] Timer trigger failed:', err));
         }, 500);
         if (isPlaying && !isLoading) {
-            rpcSyncIntervalRef.current = setInterval(() => {
+            rpcSyncIntervalRef.current = window.setInterval(() => {
                 updateRPC().catch(err => console.warn('[Discord RPC] Interval trigger failed:', err));
             }, 30000);
         }
@@ -841,7 +841,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             
             // Sync RPC immediately on seek after a small debounce
             if (currentTrack && isPlaying) {
-                progressTimeoutRef.current = setTimeout(() => {
+                progressTimeoutRef.current = window.setTimeout(() => {
                     const finalDuration = trackDuration ? trackDuration * 1000 : currentTrack.durationMs;
                     window.ipcRenderer?.invoke('update-rpc', {
                         title: currentTrack.name,
@@ -956,23 +956,30 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                     console.log(`[PlayerBar] ⏹ onEnded | queue=${queue.length} | track="${currentTrack?.name}" | token=${!!accessToken}`);
                     await handleSkip();
                 }}
-                onError={(e) => {
+                onError={async (e) => {
                     const audio = e.target as HTMLAudioElement;
                     const code = audio.error?.code;
                     // MEDIA_ERR_NETWORK (2) or MEDIA_ERR_SRC_NOT_SUPPORTED (4) = expired/bad URL
                     if (code === 2 || code === 4) {
                         if (streamRetryCount.current < 2) {
                             streamRetryCount.current += 1;
-                            console.warn(`Stream error (code ${code}), retrying... attempt ${streamRetryCount.current}`);
-                            // Force a re-fetch without using cached URL if possible
-                            if (currentTrack) {
+                            console.warn(`[PlayerBar] Stream error (code ${code}), retrying in 2s... attempt ${streamRetryCount.current}`);
+                            
+                            // Cooldown to prevent rapid skipping loop
+                            await new Promise(r => setTimeout(r, 2000));
+
+                            // Only clear cache if the link worked for a bit (suggests expiry)
+                            // If it failed instantly, clearing cache likely won't fix a systemic bot-block
+                            if (currentTrack && audio.currentTime > 1) {
                                 window.ipcRenderer.invoke('clear-cache').catch(() => {});
+                                window.ipcRenderer.invoke('cancel-stream', currentTrack.id, 'player').catch(() => {});
                             }
                             setStreamUrl(null); 
                         } else {
-                            console.error('Stream failed after 2 retries, skipping track.');
+                            console.error('[PlayerBar] Stream failed after 2 retries, skipping track.');
                             streamRetryCount.current = 0;
-                            onNext();
+                            // Small delay before skipping to keep UI stable
+                            setTimeout(() => onNext(), 500);
                         }
                     }
                 }}
