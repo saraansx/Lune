@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Submit package to WinGet
-        uses: vedantatkapoor/winget-releaser@v2
+        uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: saraansx.Lune
           installers-regex: '\.exe$' # Focuses on the .exe setup file
