@@ -14,4 +14,3 @@ jobs:
           identifier: saraansx.Lune
           installers-regex: '\.exe$' # Focuses on the .exe setup file
           token: ${{ secrets.WINGET_GH_TOKEN }}
-hoiw
