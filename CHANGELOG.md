@@ -2,6 +2,38 @@
 
 All notable changes to Lune will be documented in this file.
 
+## [1.0.2] - 2026-03-12
+
+### Remote Plugin System & Reliability Overhaul
+
+This update eliminates the need for app updates when Spotify changes their API hashes, fixes critical YouTube playback failures, and adds a full Downloads management experience.
+
+#### Added
+
+- **Remote Hash Registry:** All Spotify GraphQL persisted-query hashes are now fetched from a remote GitHub Gist at runtime instead of being hardcoded. If a hash breaks, it can be fixed by editing the gist — no app update required. Hashes are cached in memory with a 30-minute TTL, with graceful fallback to stale cache if the remote fetch fails.
+- **Downloads View:** Brand new dedicated Downloads page with full track listing, virtualized scrolling (handles thousands of tracks), shuffle play, queue management, and per-track context menus (play next, add to queue, favorite, add to local playlist, remove download).
+- **Download Settings:** New settings panel to view and change the download storage location with a folder picker.
+- **Star on GitHub Prompt:** A non-intrusive, glassmorphism-styled popup that asks users to star the GitHub repo after their second session. Includes "Maybe Later" dismiss and remembers if the user has already starred.
+- **GitHub Feature Request Template:** Added a structured YAML-based issue template for feature requests.
+
+#### Changed
+
+- **YouTube Playback Fallback Strategies:** Implemented multi-client fallback for `yt-dlp` stream fetching. If the primary YouTube API client fails, the system now automatically tries alternative clients before giving up, dramatically improving playback success rates.
+- **Player Context Improvements:** Significant refactoring of `PlayerContext` to improve state management, queue handling, and playback reliability. Enhanced error handling for edge cases during track transitions.
+- **Streaming Handler Robustness:** Updated `electron/handlers/streaming.ts` with better error recovery, retry logic, and cache management for audio streams.
+- **Electron Main Process:** Enhanced window management, IPC handlers, settings persistence (`electron-store`), and yt-dlp binary path resolution. Improved error handling throughout the main process.
+- **PlayerBar Enhancements:** Improved player bar UI interactions and state synchronization.
+- **Playlist Component:** Refactored playlist display with better error handling and type safety.
+- **Artist View:** Improved artist page data handling and layout.
+- **Updated Dependencies:** Bumped `package-lock.json` and various dependency versions.
+
+#### Fixed
+
+- **YouTube Playback Loop:** Fixed a critical bug where the application would repeatedly clear its cache and re-fetch stream URLs in an infinite loop, completely preventing playback. The cache-clearing logic and URL fetching triggers have been corrected to ensure seamless audio playback.
+- **Spotify Hash Breakage:** By moving to remote hashes, the app no longer becomes non-functional when Spotify rotates their internal API hashes — a problem that previously required pushing an app update to fix.
+- **Download Indicator Scoping:** Improved download progress indicator to correctly scope updates to individual tracks.
+- **Login Flow:** Minor improvements to the login component for better reliability.
+
 ## [1.0.1] - 2026-03-05
 
 ### Performance Optimizations (V2 Patch)
