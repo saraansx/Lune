@@ -15,6 +15,31 @@ import { PlaybackProvider } from './context/PlaybackContext';
 import { ApiProvider } from './context/ApiContext';
 import { SpotifyGqlApi } from '../Plugin/gql/index';
 
+const originalLog = console.log;
+const originalWarn = console.warn;
+const originalError = console.error;
+
+console.log = (...args: any[]) => {
+  originalLog(...args);
+  if (window.ipcRenderer) {
+    window.ipcRenderer.invoke('add-log', 'info', args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')).catch(() => {});
+  }
+};
+
+console.warn = (...args: any[]) => {
+  originalWarn(...args);
+  if (window.ipcRenderer) {
+    window.ipcRenderer.invoke('add-log', 'warn', args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')).catch(() => {});
+  }
+};
+
+console.error = (...args: any[]) => {
+  originalError(...args);
+  if (window.ipcRenderer) {
+    window.ipcRenderer.invoke('add-log', 'error', args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')).catch(() => {});
+  }
+};
+
 import './index.css'
 
 import PlayerBar from './components/PlayerBar/PlayerBar';
