@@ -9,11 +9,16 @@ const StarPopup = () => {
         const checkStarStatus = async () => {
             try {
                 const hasStarred = await window.ipcRenderer.invoke('get-setting', 'has_starred');
-                const startupCount = await window.ipcRenderer.invoke('get-setting', 'startup_count');
-                
-                // Show if user hasn't starred and it's at least their second session
-                // This makes it less intrusive than showing on the first ever run
-                if (!hasStarred && startupCount >= 2) {
+                if (hasStarred) return; // Never show again once starred
+
+                const startupCount: number = (await window.ipcRenderer.invoke('get-setting', 'startup_count')) || 1;
+                const lastDismissedAt: number = (await window.ipcRenderer.invoke('get-setting', 'star_last_dismissed_at')) || 0;
+
+                // Show on 1st open (lastDismissedAt is 0, meaning never dismissed)
+                // After that, show again every 10 opens since the last dismissal
+                const shouldShow = lastDismissedAt === 0 || (startupCount - lastDismissedAt) >= 10;
+
+                if (shouldShow) {
                     // Slight delay for better UX
                     setTimeout(() => setIsVisible(true), 2000);
                 }
@@ -30,7 +35,10 @@ const StarPopup = () => {
         setIsVisible(false);
     };
 
-    const handleLater = () => {
+    const handleLater = async () => {
+        // Record current startup count so the popup waits another 10 opens
+        const startupCount = await window.ipcRenderer.invoke('get-setting', 'startup_count');
+        await window.ipcRenderer.invoke('set-setting', 'star_last_dismissed_at', startupCount || 1);
         setIsVisible(false);
     };
 
