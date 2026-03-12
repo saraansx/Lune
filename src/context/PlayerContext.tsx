@@ -233,6 +233,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           neighbors.push(sessionHistory[sessionIndex + 1]);
       } else if (activeQueue.length > 0) {
           neighbors.push(activeQueue[0]);
+      } else if (autoplayQueue.length > 0) {
+          neighbors.push(autoplayQueue[0]);
       }
 
       // Cleanup prefetch cache: remove non-neighbors OR stale URLs (older than 30m)

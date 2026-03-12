@@ -190,7 +190,6 @@ export class YtDlpAudio {
 
             if (elapsed < MIN_REQUEST_INTERVAL_MS) {
                 const waitTime = MIN_REQUEST_INTERVAL_MS - elapsed;
-                console.log(`[YtDlp] 🛑 Rate limit: Waiting ${waitTime}ms... (Queue: ${this.taskQueue.length + 1})`);
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             }
 
