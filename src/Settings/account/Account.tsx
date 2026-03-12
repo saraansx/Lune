@@ -73,7 +73,11 @@ const Account: React.FC<AccountProps> = ({ accessToken, cookies: _cookies }) => 
                                 <div className="account-details">
                                     <h3 className="account-name">{accountData.profile.display_name}</h3>
                                     <p className="account-status">
-                                        {accountData.attributes?.accountAttributes?.find((a: any) => a.key === 'is_premium')?.value === 'true' 
+                                        {(accountData.attributes?.accountAttributes || accountData.attributes?.me?.accountAttributes)?.some((a: any) => {
+                                            const key = String(a.key).toLowerCase();
+                                            const val = String(a.value).toLowerCase();
+                                            return (key === 'is_premium' || key === 'premium' || key === 'product') && (val === 'true' || val === '1' || val === 'premium');
+                                        }) 
                                             ? t('settings.spotifyPremium') 
                                             : t('settings.spotifyFree')}
                                     </p>

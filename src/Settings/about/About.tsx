@@ -3,7 +3,6 @@ import './About.css';
 import { useLanguage } from '../../context/LanguageContext';
 import mainLogo from '../../assets/Main.png';
 import saraansPfp from '../../assets/Credits/Saraans.jpg';
-import krtikyPfp from '../../assets/Credits/Krtiky.webp';
 import licenseText from '../../../LicENSE?raw';
 
 /* ── Commit History Component ── */
@@ -237,36 +236,6 @@ const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
                         <button
                             className="about-credits-card-btn"
                             onClick={() => window.ipcRenderer?.invoke('open-external', 'https://www.instagram.com/saraan._.s/')}
-                            title="Instagram"
-                        >
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="about-credits-card">
-                    <img src={krtikyPfp} alt="Krtiky" className="about-credits-card-avatar" />
-                    <div className="about-credits-card-info">
-                        <span className="about-credits-card-name">Krtiky</span>
-                        <span className="about-credits-card-desc">{t('about.krtiky.desc')}</span>
-                    </div>
-                    <div className="about-credits-card-socials">
-                        <button
-                            className="about-credits-card-btn"
-                            onClick={() => window.ipcRenderer?.invoke('open-external', 'https://www.behance.net/kartikaysabharwal')}
-                            title="Behance"
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M7.71 15.54h1.52c1 0 1.51-.54 1.51-1.39 0-1.17-.5-1.55-1.51-1.55H7.71v2.94zm0-5.03h1.22c.86 0 1.28-.41 1.28-1.13 0-.85-.42-1.12-1.28-1.12H7.71v2.25zM5.31 18V6H8.9c2.82 0 4.1 1.5 4.1 3.29 0 1.34-.63 2.19-1.63 2.62 1.25.43 2.05 1.52 2.05 3.09 0 2-1.35 3-4.15 3H5.31zm13.12-1.53c-1.16 0-1.74-.83-1.86-1.58h3.75c-.14-.85-.6-1.58-1.89-1.58zm3.89-1.1c-.08-2.6-1.57-3.92-3.8-3.92-2.3 0-3.91 1.47-3.91 3.92 0 2.45 1.57 3.96 4.13 3.96 1.18 0 2.36-.33 3.1-.79l-.5-.99c-.6.38-1.6.61-2.48.61-1.6 0-2.22-.85-2.24-1.79h5.7zm-5.71-4.88h3.62v-.74h-3.62v.74z"/>
-                            </svg>
-                        </button>
-                        <button
-                            className="about-credits-card-btn"
-                            onClick={() => window.ipcRenderer?.invoke('open-external', 'https://instagram.com/kartikay.xyz')}
                             title="Instagram"
                         >
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
