@@ -40,14 +40,13 @@
 
 ### / Download
 
-```powershell
-winget install saraansx.Lune
-# or
-scoop bucket add lune https://github.com/saraansx/Lune
-scoop install lune/lune
-```
+| | |
+| :--- | :--- |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [WinGet](https://learn.microsoft.com/en-us/windows/package-manager/winget/) | `winget install saraansx.Lune` |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [Chocolatey](https://chocolatey.org/) | `choco install lune` |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [Scoop](https://scoop.sh/) | `scoop bucket add extras`<br>`scoop install lune` |
 
-_Or grab the latest setup from **[Releases](https://github.com/saraansx/Lune/releases)**._
+_Or grab the latest setup directly from **[Releases](https://github.com/saraansx/Lune/releases)**._
 
 <br />
 
