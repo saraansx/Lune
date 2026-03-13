@@ -42,6 +42,9 @@
 
 ```powershell
 winget install saraansx.Lune
+# or
+scoop bucket add lune https://github.com/saraansx/Lune
+scoop install lune/lune
 ```
 
 _Or grab the latest setup from **[Releases](https://github.com/saraansx/Lune/releases)**._
