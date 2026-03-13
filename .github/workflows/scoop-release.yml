@@ -1,0 +1,43 @@
+name: Update Scoop Manifest
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-scoop-manifest:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update Scoop manifest
+        run: |
+          $version = "${{ github.event.release.tag_name }}".TrimStart('v')
+          $url = "https://github.com/saraansx/Lune/releases/download/${{ github.event.release.tag_name }}/Lune-Setup-${version}.exe"
+          
+          # Download to calculate hash
+          Invoke-WebRequest -Uri $url -OutFile "Lune-Setup.exe"
+          $hash = (Get-FileHash "Lune-Setup.exe").Hash
+          Remove-Item "Lune-Setup.exe"
+          
+          # Update JSON
+          $jsonPath = "bucket/lune.json"
+          $json = Get-Content $jsonPath | ConvertFrom-Json
+          $json.version = $version
+          $json.architecture."64bit".url = "$url#/dl.7z"
+          $json.architecture."64bit".hash = $hash
+          $json | ConvertTo-Json -Depth 10 | Set-Content $jsonPath
+
+      - name: Commit and push changes
+        run: |
+          git add bucket/lune.json
+          git commit -m "chore(scoop): update manifest to version ${{ github.event.release.tag_name }}"
+          git push
