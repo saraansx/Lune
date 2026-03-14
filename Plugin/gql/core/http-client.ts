@@ -2,12 +2,14 @@ export interface HttpClientOptions {
     baseURL?: string;
     headers?: Record<string, string | undefined>;
     timeout?: number;
+    onUnauthorized?: () => void;
 }
 
 export type RequestOptions = Omit<RequestInit, 'body'> & {
     params?: Record<string, any>;
     timeout?: number;
     body?: BodyInit | Record<string, any> | null;
+    onUnauthorized?: () => void;
 };
 
 function removeFalsyValues(obj: Record<string, any>): Record<string, any> {
@@ -21,11 +23,13 @@ export class HttpClient {
     private baseURL: string;
     private defaultHeaders: Record<string, string | undefined>;
     private timeout: number;
+    private onUnauthorized?: () => void;
 
     constructor(options: HttpClientOptions = {}) {
         this.baseURL = options.baseURL || '';
         this.defaultHeaders = removeFalsyValues(options.headers || {});
         this.timeout = options.timeout || 30000;
+        this.onUnauthorized = options.onUnauthorized;
     }
 
     private buildURL(path: string, params?: Record<string, string | number | boolean>): string {
@@ -70,6 +74,11 @@ export class HttpClient {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    const callback = options.onUnauthorized || this.onUnauthorized;
+                    if (callback) callback();
+                }
+
                 let msg = `HTTP ${response.status}: ${response.statusText}`
                 if (response.bodyUsed) {
                     msg += `\n${await response.text()}`

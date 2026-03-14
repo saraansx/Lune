@@ -8,9 +8,11 @@ import { getHash } from "./hash-registry.js";
 
 export class SpotifyRadioEndpoint {
     private accessToken: string;
+    private onUnauthorized?: () => void;
 
-    constructor(accessToken: string) {
+    constructor(accessToken: string, onUnauthorized?: () => void) {
         this.accessToken = accessToken;
+        this.onUnauthorized = onUnauthorized;
     }
 
     /** Convert spotify:image: URI or upgrade i.scdn.co URL to 640x640 HTTPS. */
@@ -117,6 +119,9 @@ export class SpotifyRadioEndpoint {
                 }
                 console.warn('[Radio] spclient returned 0 parseable tracks, trying GQL fallback...');
             } else {
+                if (res.status === 401 && this.onUnauthorized) {
+                    this.onUnauthorized();
+                }
                 console.warn(`[Radio] spclient returned ${res.status}, trying GQL fallback...`);
             }
         } catch (e) {
@@ -176,6 +181,8 @@ export class SpotifyRadioEndpoint {
                     console.log(`[Radio] ✅ Got ${parsed.length} tracks from GQL fallback`);
                     return parsed;
                 }
+            } else if (res.status === 401 && this.onUnauthorized) {
+                this.onUnauthorized();
             }
         } catch (e) {
             console.warn('[Radio] GQL fallback error:', e);

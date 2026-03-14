@@ -23,8 +23,10 @@ export default class SpotifyGqlApi {
     search!: SpotifySearchEndpoint;
     track!: SpotifyTrackEndpoint;
     user!: SpotifyUserEndpoint;
+    private onUnauthorized?: () => void;
 
-    constructor(accessToken?: string | null, spDc?: string, spT?: string) {
+    constructor(accessToken?: string | null, spDc?: string, spT?: string, onUnauthorized?: () => void) {
+        this.onUnauthorized = onUnauthorized;
         this.setAccessToken(accessToken, spDc, spT);
         // Pre-warm the remote hash cache (fire and forget – won't block constructor)
         preloadHashes().catch((err) =>
@@ -47,6 +49,7 @@ export default class SpotifyGqlApi {
         this.gqlClient = new HttpClient({
             baseURL: "https://api-partner.spotify.com/pathfinder/v2/",
             headers: headers,
+            onUnauthorized: this.onUnauthorized
         });
 
         this.album = new SpotifyAlbumEndpoint(this.gqlClient);
@@ -54,7 +57,7 @@ export default class SpotifyGqlApi {
         this.browse = new SpotifyBrowseEndpoint(this.gqlClient);
         this.library = new SpotifyLibraryEndpoint(this.gqlClient);
         this.playlist = new SpotifyPlaylistEndpoint(this.gqlClient);
-        this.radio = new SpotifyRadioEndpoint(accessToken ?? '');
+        this.radio = new SpotifyRadioEndpoint(accessToken ?? '', this.onUnauthorized);
         this.search = new SpotifySearchEndpoint(this.gqlClient);
         this.track = new SpotifyTrackEndpoint(this.gqlClient);
         this.user = new SpotifyUserEndpoint(this.gqlClient);

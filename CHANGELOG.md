@@ -2,6 +2,28 @@
 
 All notable changes to Lune will be documented in this file.
 
+## [1.0.3] - 2026-03-14
+
+### Self-Healing Authentication & Session Resiliency
+
+This update introduces a robust, proactive authentication system that automatically recovers from expired Spotify tokens and transient network failures, ensuring uninterrupted playback and account access.
+
+#### Added
+
+- **Real-time 401 Error Detection:** The application now actively monitors all Spotify API requests for "Unauthorized" (401) responses. If a session expires while the app is running, it instantly triggers a background recovery instead of waiting for a scheduled timer.
+- **Proactive Token Refresh:** Implemented a global `onUnauthorized` hook that bridges all API endpoints to the main authentication controller, allowing for immediate "self-healing" of the application state.
+
+#### Changed
+
+- **Improved Session Resiliency:** Refactored the authentication lifecycle in `main.tsx` to hold onto user credentials during transient errors. The app no longer "gives up" on a session due to a single failed refresh, preventing users from being kicked to the "Log out anyway" setting state.
+- **Bypassable Refresh Cooldown:** Modified the Electron background process to ignore the standard 10-second refresh cooldown if a hard 401 error is detected, ensuring music playback and settings can recover the millisecond a connection is restored.
+
+#### Fixed
+
+- **Persistent "Log out anyway" Bug:** Fixed a logic error where the app would mark a session as invalid if a background refresh failed once, which previously forced users to manually log out and back in to fix the "Could not load profile" error in settings.
+- **Refresh Timer Suspension:** Corrected a bug in the token refresh logic where an already-expired token would wait 5 minutes to retry; it now retries in the background with increasing frequency while keeping the UI active.
+
+
 ## [1.0.2] - 2026-03-12
 
 ### Remote Plugin System & Reliability Overhaul

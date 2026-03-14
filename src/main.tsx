@@ -507,46 +507,45 @@ const App = () => {
     }
   };
 
-  React.useEffect(() => {
-    let refreshTimer: ReturnType<typeof setTimeout>;
-    let isLoggedIn = false;
-    let cancelled = false;
+  const refreshTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const loadCredentials = async () => {
-      if (cancelled) return;
-      try {
-        const creds = await window.ipcRenderer.invoke('get-spotify-credentials');
-        if (cancelled) return;
-
-        if (creds) {
-          setCredentials(creds);
-          setIsAuthenticated(true);
-          setIsCheckingAuth(false);
-          isLoggedIn = true;
-
-          if (creds.expiration) {
-            const msUntilRefresh = creds.expiration - Date.now() - (120 * 1000);
-            if (msUntilRefresh > 0) {
-              refreshTimer = setTimeout(loadCredentials, msUntilRefresh);
-            } else {
-              refreshTimer = setTimeout(loadCredentials, 5 * 60 * 1000);
-            }
-          }
-        } else {
-          setIsAuthenticated(false);
-          setCredentials(null);
-          isLoggedIn = false;
-          setIsCheckingAuth(false);
-        }
-      } catch (err) {
-        if (cancelled) return;
+  const loadCredentials = React.useCallback(async (force = false) => {
+    if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+    }
+    
+    try {
+      const creds = await window.ipcRenderer.invoke('get-spotify-credentials', force);
+      
+      if (creds) {
+        setCredentials(creds);
+        setIsAuthenticated(true);
         setIsCheckingAuth(false);
-        if (isLoggedIn) {
-          refreshTimer = setTimeout(loadCredentials, 30000);
-        }
-      }
-    };
 
+        if (creds.expiration) {
+          const msUntilRefresh = creds.expiration - Date.now() - (120 * 1000);
+          refreshTimerRef.current = setTimeout(
+            () => loadCredentials(), 
+            msUntilRefresh > 0 ? msUntilRefresh : 5 * 60 * 1000
+          );
+        }
+      } else {
+        // Only set to false if we never had credentials, or if it explicitly returns null
+        // because the session is actually invalid (not just a network error/cooldown)
+        // Note: The main process now handles session deletion on serious errors.
+        setIsAuthenticated(false);
+        setCredentials(null);
+        setIsCheckingAuth(false);
+      }
+    } catch (err) {
+      console.error('Failed to load credentials:', err);
+      setIsCheckingAuth(false);
+      // Retry in 30s if we keep failing, but don't log the user out yet
+      refreshTimerRef.current = setTimeout(() => loadCredentials(), 30000);
+    }
+  }, []);
+
+  React.useEffect(() => {
     loadCredentials();
 
     const handleOnline = () => setIsOnline(true);
@@ -556,12 +555,16 @@ const App = () => {
     window.addEventListener('offline', handleOffline);
 
     return () => {
-      cancelled = true;
-      clearTimeout(refreshTimer);
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [loadCredentials]);
+
+  const handleUnauthorized = React.useCallback(() => {
+    console.warn('Unauthorized error detected, forcing token refresh...');
+    loadCredentials(true);
+  }, [loadCredentials]);
 
   // Handle offline/online view jumps
   React.useEffect(() => {
@@ -679,7 +682,11 @@ const App = () => {
 
   if (isAuthenticated && credentials) {
     return (
-      <ApiProvider accessToken={credentials.accessToken} cookies={credentials.cookies}>
+      <ApiProvider 
+        accessToken={credentials.accessToken} 
+        cookies={credentials.cookies}
+        onUnauthorized={handleUnauthorized}
+      >
         {showSplash && <SplashScreen onFinished={() => setShowSplash(false)} />}
         <MainLayout 
           credentials={credentials}

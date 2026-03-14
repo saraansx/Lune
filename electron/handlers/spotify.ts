@@ -42,7 +42,7 @@ export function registerSpotifyHandlers() {
                 }
 
                 if (!activeRefreshPromise) {
-                    if (Date.now() - lastRefreshAttempt < REFRESH_COOLDOWN) {
+                    if (!forceRefresh && (Date.now() - lastRefreshAttempt < REFRESH_COOLDOWN)) {
                         console.warn('Spotify refresh on cooldown, skipping...');
                         return null;
                     }
