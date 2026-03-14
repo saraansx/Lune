@@ -14,7 +14,7 @@
       <img src="https://img.shields.io/badge/License-GPL--3.0-transparent?style=flat&color=C0C0C0&labelColor=333333" alt="License: GPL v3" />
     </a>
     <img src="https://img.shields.io/badge/Platform-Desktop-transparent?style=flat&color=C0C0C0&labelColor=333333" alt="Platform: Desktop" />
-    <img src="https://img.shields.io/badge/Version-1.0.0-transparent?style=flat&color=C0C0C0&labelColor=333333" alt="Version 1.0.0" />
+    <img src="https://img.shields.io/badge/Version-1.0.2-transparent?style=flat&color=C0C0C0&labelColor=333333" alt="Version 1.0.3" />
     <a href="https://discord.gg/TardrVJT9N">
       <img src="https://img.shields.io/badge/Discord-Join%20Us-transparent?style=flat&color=C0C0C0&labelColor=333333&logo=discord&logoColor=C0C0C0" alt="Discord" />
     </a>
