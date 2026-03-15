@@ -41,6 +41,7 @@ export default function RootLayout() {
         contentStyle: { backgroundColor: Colors.bgPrimary }
       }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
