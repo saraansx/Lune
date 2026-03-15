@@ -48,7 +48,7 @@
     "deleteAppDataOnUninstall": true,
     "uninstallDisplayName": "Lune (Remove all data)",
     "include": "build/installer.nsh",
-    "license": "LicENSE",
+    "license": "../../LicENSE",
     "shortcutName": "Lune",
     "runAfterFinish": false,
     "createDesktopShortcut": false,

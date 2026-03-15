@@ -1,12 +1,27 @@
-node_modules
-dist
-dist-electron
-release
+# General
+node_modules/
+dist/
+dist-electron/
+release/
+build/
 *.log
+
+# Secrets
 .env
-.ds_store
-.idea
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+yt-cookies.txt
+downloads/
 *.sqlite
 *.sqlite-journal
-yt-cookies.txt
-/downloads
+
+# IDEs
+.vscode/
+.idea/
+.qodo/

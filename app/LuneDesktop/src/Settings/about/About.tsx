@@ -3,7 +3,7 @@ import './About.css';
 import { useLanguage } from '../../context/LanguageContext';
 import mainLogo from '../../assets/Main.png';
 import saraansPfp from '../../assets/Credits/Saraans.jpg';
-import licenseText from '../../../LicENSE?raw';
+import licenseText from '../../../../../LicENSE?raw';
 
 /* ── Commit History Component ── */
 const CommitHistory: React.FC = () => {
