@@ -163,12 +163,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.04)',
+    borderColor: 'rgba(56, 189, 248, 0.2)', // Subtle light blue border
     width: 260,
+    // Premium Shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 40,
+    elevation: 10,
   },
   blurContainer: {
     width: '100%',
-    backgroundColor: 'rgba(16, 20, 26, 0.6)', // Exact desktop glass-bg
+    backgroundColor: 'rgba(14, 165, 233, 0.08)', // Transparent bluish tint
   },
   connectBtn: {
     flexDirection: 'row',
