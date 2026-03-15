@@ -21,6 +21,5 @@ downloads/
 *.sqlite-journal
 
 # IDEs
-.vscode/
 .idea/
 .qodo/
