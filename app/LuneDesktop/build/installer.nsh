@@ -87,6 +87,4 @@ FunctionEnd
 !macro customUnInstall
   DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "Lune"
   Delete "$DESKTOP\Lune.lnk"
-  RMDir /r "$LOCALAPPDATA\lune"
-  RMDir /r "$APPDATA\lune"
 !macroend
