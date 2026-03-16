@@ -55,9 +55,8 @@ export default function LoginScreen() {
           // If token is expired or about to expire in 5 minutes
           if (Date.now() > expiresAt - 300000) {
             try {
-              // Retrieve sp_dc from SecureStore to use in the refresh request
-              const sp_dc = await SecureStore.getItemAsync('sp_dc');
-              const tokenData = await core.getAccessToken(sp_dc || undefined);
+              // Automatically grabs sp_dc from native phone cookie jar
+              const tokenData = await core.getAccessToken();
               await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
               await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
               router.replace('/home' as any);
@@ -122,6 +121,9 @@ export default function LoginScreen() {
     }
   }, [showWebView, core]);
 
+  const onNavigationStateChange = async (navState: any) => {
+    // Passive monitoring handled by interval
+  };
 
   return (
     <LuneBackground>
@@ -192,6 +194,7 @@ export default function LoginScreen() {
             </View>
             <WebView
               source={{ uri: 'https://accounts.spotify.com/' }}
+              onNavigationStateChange={onNavigationStateChange}
               sharedCookiesEnabled={true}
               thirdPartyCookiesEnabled={true}
             />

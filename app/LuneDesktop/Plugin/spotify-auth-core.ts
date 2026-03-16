@@ -32,7 +32,7 @@ export class SpotifyAuthCore {
         const serverTime = await this.getServerTime();
 
         // Generate TOTP using the secret from nuance and server time
-        const totp = generateTOTP(nuance.s, serverTime);
+        const totp = generateTOTP(nuance.s, serverTime * 1000);
 
         const url = new URL('https://open.spotify.com/api/token');
         url.searchParams.set('reason', 'transport');

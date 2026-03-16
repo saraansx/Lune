@@ -5,6 +5,12 @@ export interface SpotifyTokenResponse {
     clientId: string;
 }
 
+export interface SpotifyCredentials {
+    cookies: any[];
+    spDcValue?: string;
+    accessToken: string;
+    expiration: number;
+}
 
 export interface Nuance {
     s: string;
