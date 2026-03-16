@@ -1,0 +1,182 @@
+import { HttpClient } from "./http-client"
+import { SpotifyError } from "./error";
+import { getHash } from "./hash-registry";
+
+class SpotifyPlaylistEndpoint {
+    gqlClient!: HttpClient;
+
+    constructor(gqlClient: HttpClient) {
+        this.gqlClient = gqlClient;
+    }
+
+    async getPlaylist(playlistId: string): Promise<any> {
+        const hash = await getHash("Playlist", "fetchPlaylist");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    uri: `spotify:playlist:${playlistId}`,
+                    offset: 0,
+                    limit: 343,
+                    enableWatchFeedEntrypoint: false,
+                },
+                operationName: "fetchPlaylist",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res.data.playlistV2;
+    }
+
+    async tracks(
+        playlistId: string,
+        { offset = 0, limit = 50 }: { offset?: number; limit?: number } = {}
+    ): Promise<any> {
+        const hash = await getHash("Playlist", "fetchPlaylist");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    uri: `spotify:playlist:${playlistId}`,
+                    offset,
+                    limit,
+                    enableWatchFeedEntrypoint: false,
+                },
+                operationName: "fetchPlaylist",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res.data.playlistV2.content;
+    }
+
+    async create(options: { name: string; description?: string; public?: boolean; collaborative?: boolean }) {
+        const hash = await getHash("Playlist", "createPlaylist");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    name: options.name,
+                    description: options.description || "",
+                    public: options.public || false,
+                    collaborative: options.collaborative || false,
+                },
+                operationName: "createPlaylist",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res.data.createPlaylist;
+    }
+
+    async addTracks(playlistId: string, { uris, position }: { uris: string[]; position?: number }) {
+        const hash = await getHash("Playlist", "addItemsToPlaylist");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    playlistUri: `spotify:playlist:${playlistId}`,
+                    uris,
+                    position: position ?? null,
+                },
+                operationName: "addItemsToPlaylist",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res;
+    }
+
+    async removeTracks(playlistId: string, { uris }: { uris: string[] }) {
+        const hash = await getHash("Playlist", "removeItemsFromPlaylist");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    playlistUri: `spotify:playlist:${playlistId}`,
+                    uris,
+                },
+                operationName: "removeItemsFromPlaylist",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res;
+    }
+
+    async follow(playlistIds: string[]) {
+        const hash = await getHash("Library", "addToLibrary");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    uris: playlistIds.map(id => `spotify:playlist:${id}`),
+                },
+                operationName: "addToLibrary",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res;
+    }
+
+    async unfollow(playlistIds: string[]) {
+        const hash = await getHash("Library", "removeFromLibrary");
+
+        const res = await this.gqlClient.post("query", {
+            body: {
+                variables: {
+                    uris: playlistIds.map(id => `spotify:playlist:${id}`),
+                },
+                operationName: "removeFromLibrary",
+                extensions: {
+                    persistedQuery: {
+                        version: 1,
+                        sha256Hash: hash,
+                    },
+                },
+            },
+        });
+
+        SpotifyError.mayThrow(res);
+        return res;
+    }
+}
+
+export { SpotifyPlaylistEndpoint };

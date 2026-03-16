@@ -10,8 +10,10 @@ import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { SpotifyAuthCore } from '../Plugin/spotify-auth-core';
 import CookieManager from '@react-native-cookies/cookies';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen() {
+    const { setAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showWebView, setShowWebView] = useState(false);
   const floatAnim = useRef(new Animated.Value(0)).current;
@@ -59,14 +61,16 @@ export default function LoginScreen() {
               const tokenData = await core.getAccessToken();
               await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
               await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
-              router.replace('/home' as any);
-              return; // Successfully refreshed and redirected
+              await setAuth(tokenData.accessToken);
+              router.replace('/home');
+              return; 
             } catch (refreshError) {
               // Token refresh failed (maybe sp_dc expired), user must log in again
             }
           } else {
             // Token still valid, redirect immediately
-            router.replace('/home' as any);
+            await setAuth(token);
+            router.replace('/home');
             return;
           }
         }
@@ -87,25 +91,29 @@ export default function LoginScreen() {
           const spotifyCookies = await CookieManager.get('https://spotify.com');
           const accountsCookies = await CookieManager.get('https://accounts.spotify.com');
           const spDcCookie = spotifyCookies.sp_dc || accountsCookies.sp_dc;
+          const spTCookie = spotifyCookies.sp_t || accountsCookies.sp_t;
           
           if (spDcCookie && spDcCookie.value) {
             if (isProcessingAuth.current) return;
             isProcessingAuth.current = true;
             
             const sp_dc = spDcCookie.value;
+            const sp_t = spTCookie?.value || '';
             clearInterval(interval);
             
             try {
               const tokenData = await core.getAccessToken(sp_dc);
               
               await SecureStore.setItemAsync('sp_dc', sp_dc);
+              if (sp_t) await SecureStore.setItemAsync('sp_t', sp_t);
               await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
               await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
               
               // We do not clear cookies here because the native fetch interceptor needs it for refreshes!
+              await setAuth(tokenData.accessToken, sp_dc, sp_t);
               setShowWebView(false);
               setIsLoading(false);
-              router.replace('/home' as any);
+              router.replace('/home');
             } catch (error) {
               console.error("Error retrieving tokens:", error);
               setShowWebView(false);
