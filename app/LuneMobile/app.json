@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "backgroundColor": "#050608",
         "foregroundImage": "assets/images/android-foreground.png"
-      }
+      },
+      "package": "com.anonymous.LuneMobile"
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +35,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "40ebfd38-36d7-4c7c-a8bd-8553f95d670b"
+      }
     }
   }
 }

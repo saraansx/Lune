@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import CookieManager from '@react-native-cookies/cookies';
 
 export default function HomeScreen() {
   const [token, setToken] = useState<string | null>(null);
@@ -17,6 +18,7 @@ export default function HomeScreen() {
       await SecureStore.deleteItemAsync('sp_dc');
       await SecureStore.deleteItemAsync('spotify_access_token');
       await SecureStore.deleteItemAsync('spotify_token_expiration');
+      await CookieManager.clearAll();
       router.replace('/');
   }
 

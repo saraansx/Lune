@@ -32,7 +32,7 @@ export class SpotifyAuthCore {
         const serverTime = await this.getServerTime();
 
         // Generate TOTP using the secret from nuance and server time
-        const totp = generateTOTP(nuance.s, serverTime * 1000);
+        const totp = generateTOTP(nuance.s, serverTime);
 
         // React Native fetch/axios with full URL instead of node URL search params works, 
         // but we can just construct string:

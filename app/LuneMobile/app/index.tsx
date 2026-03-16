@@ -9,6 +9,7 @@ import { WebView } from 'react-native-webview';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 import { SpotifyAuthCore } from '../Plugin/spotify-auth-core';
+import CookieManager from '@react-native-cookies/cookies';
 
 export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,8 +55,9 @@ export default function LoginScreen() {
           // If token is expired or about to expire in 5 minutes
           if (Date.now() > expiresAt - 300000) {
             try {
-              // Automatically grabs sp_dc from native phone cookie jar
-              const tokenData = await core.getAccessToken();
+              // Retrieve sp_dc from SecureStore to use in the refresh request
+              const sp_dc = await SecureStore.getItemAsync('sp_dc');
+              const tokenData = await core.getAccessToken(sp_dc || undefined);
               await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
               await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
               router.replace('/home' as any);
@@ -78,33 +80,48 @@ export default function LoginScreen() {
     checkLoginStatus();
   }, [core]);
 
-  const onNavigationStateChange = async (navState: any) => {
-    const url = navState.url;
-    // When the user completes login, the WebView will navigate away from the login page.
-    // If we land on a generic Spotify page (e.g. account overview), we attempt to fetch a token.
-    if (url && url.includes('spotify.com') && !url.includes('login') && !url.includes('authorize')) {
-      if (isProcessingAuth.current) return;
-      
-      try {
-        isProcessingAuth.current = true;
-        
-        // Native networking inside React Native automatically shares the sp_dc 
-        // cookie established by the WebView, so we don't need to manually pass it.
-        const tokenData = await core.getAccessToken();
-        
-        await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
-        await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
-        
-        setShowWebView(false);
-        setIsLoading(false);
-        router.replace('/home' as any); // Redirect to home page
-      } catch (error) {
-        // If it throws an error (e.g., token fetch fails because user isn't fully logged in), 
-        // we reset so it can try again on the next navigation event.
-        isProcessingAuth.current = false;
-      }
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (showWebView && !isProcessingAuth.current) {
+      interval = setInterval(async () => {
+        try {
+          const spotifyCookies = await CookieManager.get('https://spotify.com');
+          const accountsCookies = await CookieManager.get('https://accounts.spotify.com');
+          const spDcCookie = spotifyCookies.sp_dc || accountsCookies.sp_dc;
+          
+          if (spDcCookie && spDcCookie.value) {
+            if (isProcessingAuth.current) return;
+            isProcessingAuth.current = true;
+            
+            const sp_dc = spDcCookie.value;
+            clearInterval(interval);
+            
+            try {
+              const tokenData = await core.getAccessToken(sp_dc);
+              
+              await SecureStore.setItemAsync('sp_dc', sp_dc);
+              await SecureStore.setItemAsync('spotify_access_token', tokenData.accessToken);
+              await SecureStore.setItemAsync('spotify_token_expiration', tokenData.accessTokenExpirationTimestampMs.toString());
+              
+              // We do not clear cookies here because the native fetch interceptor needs it for refreshes!
+              setShowWebView(false);
+              setIsLoading(false);
+              router.replace('/home' as any);
+            } catch (error) {
+              console.error("Error retrieving tokens:", error);
+              setShowWebView(false);
+              setIsLoading(false);
+              isProcessingAuth.current = false;
+            }
+          }
+        } catch(e) { /* ignore */ }
+      }, 1000);
     }
-  };
+    return () => {
+      if (interval) clearInterval(interval);
+    }
+  }, [showWebView, core]);
+
 
   return (
     <LuneBackground>
@@ -175,7 +192,6 @@ export default function LoginScreen() {
             </View>
             <WebView
               source={{ uri: 'https://accounts.spotify.com/' }}
-              onNavigationStateChange={onNavigationStateChange}
               sharedCookiesEnabled={true}
               thirdPartyCookiesEnabled={true}
             />
