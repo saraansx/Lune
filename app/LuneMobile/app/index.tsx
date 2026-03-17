@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator, Ani
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '../constants/Colors';
 import { LuneBackground } from '../components/LuneBackground';
+import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
 import { WebView } from 'react-native-webview';
@@ -135,6 +136,13 @@ export default function LoginScreen() {
 
   return (
     <LuneBackground>
+      {/* Soft bluish mesh overlay to match desktop's premium feel */}
+      <LinearGradient
+        colors={['rgba(14, 165, 233, 0.18)', 'rgba(56, 189, 248, 0.08)', 'transparent']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0.8 }}
+        style={StyleSheet.absoluteFill}
+      />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           

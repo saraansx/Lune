@@ -1,12 +1,29 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator, FlatList, Dimensions, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useApi } from '@/context/ApiContext';
 import { Colors, Spacing, Typography } from '@/constants/Colors';
 import { normalizeTrack, LuneTrack } from '@/types/track';
-import { ArrowLeft, Play, MoreVertical, Clock } from 'lucide-react-native';
+import { ArrowLeft, Play, MoreVertical } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
+
+// --- Optimized Components ---
+
+const TrackItem = React.memo(({ item, index, onMorePress }: { item: LuneTrack; index: number; onMorePress: (item: LuneTrack) => void }) => {
+    return (
+        <TouchableOpacity style={styles.trackItem} activeOpacity={0.7}>
+            <Text style={styles.trackIndex}>{index + 1}</Text>
+            <View style={styles.trackInfo}>
+                <Text style={styles.trackName} numberOfLines={1}>{item.name}</Text>
+                <Text style={styles.trackArtist} numberOfLines={1}>{item.artist}</Text>
+            </View>
+            <TouchableOpacity onPress={() => onMorePress(item)} style={styles.moreBtn}>
+                <MoreVertical size={20} color={Colors.textDim} />
+            </TouchableOpacity>
+        </TouchableOpacity>
+    );
+});
 
 interface PlaylistDetailViewProps {
     id: string;
@@ -20,7 +37,7 @@ export const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ id, type
     const [tracks, setTracks] = useState<LuneTrack[]>([]);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
@@ -71,22 +88,46 @@ export const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ id, type
         } finally {
             setLoading(false);
         }
-    };
+    }, [api, id, type]);
 
     useEffect(() => {
         fetchData();
-    }, [id, type]);
+    }, [fetchData]);
 
-    const renderTrackItem = ({ item, index }: { item: LuneTrack; index: number }) => (
-        <TouchableOpacity style={styles.trackItem} activeOpacity={0.7}>
-            <Text style={styles.trackIndex}>{index + 1}</Text>
-            <View style={styles.trackInfo}>
-                <Text style={styles.trackName} numberOfLines={1}>{item.name}</Text>
-                <Text style={styles.trackArtist} numberOfLines={1}>{item.artist}</Text>
+    const handleMorePress = useCallback((item: LuneTrack) => {
+        // Implement track options menu
+    }, []);
+
+    const renderTrackItem = useCallback(({ item, index }: { item: LuneTrack; index: number }) => (
+        <TrackItem item={item} index={index} onMorePress={handleMorePress} />
+    ), [handleMorePress]);
+
+    const listHeader = useMemo(() => {
+        if (!data) return null;
+        return (
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                    <ArrowLeft size={24} color={Colors.textMain} />
+                </TouchableOpacity>
+                
+                <View style={styles.heroSection}>
+                    <Image source={{ uri: data.coverUrl }} style={styles.coverImage} />
+                    <Text style={styles.title}>{data.name}</Text>
+                    <Text style={styles.subtitle}>{data.ownerName} • {data.totalTracks} songs</Text>
+                    
+                    <View style={styles.actionRow}>
+                        <TouchableOpacity style={styles.playBtn}>
+                            <Play size={24} color="white" fill="white" />
+                        </TouchableOpacity>
+                        <View style={styles.actionSpace} />
+                        <TouchableOpacity style={styles.secondaryAction}>
+                            <MoreVertical size={24} color={Colors.textDim} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </View>
-            <MoreVertical size={20} color={Colors.textDim} />
-        </TouchableOpacity>
-    );
+        );
+    }, [data]);
 
     if (loading) {
         return (
@@ -113,30 +154,12 @@ export const PlaylistDetailView: React.FC<PlaylistDetailViewProps> = ({ id, type
                 data={tracks}
                 renderItem={renderTrackItem}
                 keyExtractor={(item, index) => `${item.id}-${index}`}
-                ListHeaderComponent={() => (
-                    <View style={styles.header}>
-                        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                            <ArrowLeft size={24} color={Colors.textMain} />
-                        </TouchableOpacity>
-                        
-                        <View style={styles.heroSection}>
-                            <Image source={{ uri: data.coverUrl }} style={styles.coverImage} />
-                            <Text style={styles.title}>{data.name}</Text>
-                            <Text style={styles.subtitle}>{data.ownerName} • {data.totalTracks} songs</Text>
-                            
-                            <View style={styles.actionRow}>
-                                <TouchableOpacity style={styles.playBtn}>
-                                    <Play size={24} color="white" fill="white" />
-                                </TouchableOpacity>
-                                <View style={styles.actionSpace} />
-                                <TouchableOpacity style={styles.secondaryAction}>
-                                    <MoreVertical size={24} color={Colors.textDim} />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                )}
+                ListHeaderComponent={listHeader}
                 contentContainerStyle={styles.listContent}
+                initialNumToRender={15}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+                removeClippedSubviews={Platform.OS === 'android'}
             />
         </View>
     );
@@ -236,7 +259,11 @@ const styles = StyleSheet.create({
         ...Typography.caption,
         fontSize: 13,
     },
+    moreBtn: {
+        padding: Spacing.xs,
+    },
     errorText: {
+        ...Typography.body,
         color: '#ef4444',
         marginBottom: Spacing.md,
     },

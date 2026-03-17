@@ -1,12 +1,60 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import CookieManager from '@react-native-cookies/cookies';
 import { useApi } from '@/context/ApiContext';
 import { useAuth } from '@/context/AuthContext';
 import { Colors, Spacing, Typography } from '@/constants/Colors';
 import type { BrowseSectionItem, GqlPlaylistSimplified, GqlAlbumSimplified, GqlArtist } from '@/Plugin/gql';
+
+// --- Optimized Components ---
+
+const Card = React.memo(({ item, onPress }: { item: GqlPlaylistSimplified | GqlAlbumSimplified | GqlArtist, onPress: (item: any) => void }) => {
+    return (
+        <TouchableOpacity 
+            style={styles.card} 
+            activeOpacity={0.7}
+            onPress={() => onPress(item)}
+        >
+            <View style={styles.imageContainer}>
+                <Image 
+                    source={{ uri: item.images?.[0]?.url || 'https://via.placeholder.com/150' }} 
+                    style={styles.cardImage} 
+                />
+            </View>
+            <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
+            <Text style={styles.cardSubtitle} numberOfLines={1}>
+                {item.objectType === 'Playlist' ? 'Playlist' : item.objectType === 'Album' ? 'Album' : 'Artist'}
+            </Text>
+        </TouchableOpacity>
+    );
+});
+
+const HomeSection = React.memo(({ section, onCardPress }: { section: BrowseSectionItem, onCardPress: (item: any) => void }) => {
+    if (!section.items || section.items.length === 0) return null;
+
+    return (
+        <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                <TouchableOpacity>
+                    <Text style={styles.showAllText}>Show All</Text>
+                </TouchableOpacity>
+            </View>
+            <FlatList
+                data={section.items}
+                renderItem={({ item }) => <Card item={item} onPress={onCardPress} />}
+                keyExtractor={(item) => item.uri}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalList}
+                initialNumToRender={5}
+                windowSize={3}
+                maxToRenderPerBatch={5}
+                removeClippedSubviews={true}
+            />
+        </View>
+    );
+});
 
 export const HomeView = () => {
     const { api, spT } = useApi();
@@ -15,9 +63,9 @@ export const HomeView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         await logout();
-    };
+    }, [logout]);
 
     const greeting = useMemo(() => {
         const hour = new Date().getHours();
@@ -26,15 +74,13 @@ export const HomeView = () => {
         return 'Good Evening';
     }, []);
 
-    const fetchHomeData = async () => {
+    const fetchHomeData = useCallback(async () => {
         try {
             setLoading(true);
-            
             const data = await api.browse.home({
                 timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 spTCookie: spT || '',
             });
-
             setSections(data);
         } catch (err: any) {
             console.error('Failed to fetch home data:', err);
@@ -42,11 +88,25 @@ export const HomeView = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [api, spT]);
 
     useEffect(() => {
         fetchHomeData();
-    }, [api]);
+    }, [fetchHomeData]);
+
+    const handlePress = useCallback((item: GqlPlaylistSimplified | GqlAlbumSimplified | GqlArtist) => {
+        if (item.objectType === 'Playlist') {
+            router.push(`/playlist/${item.id}` as any);
+        } else if (item.objectType === 'Album') {
+            router.push(`/album/${item.id}` as any);
+        } else if (item.objectType === 'Artist') {
+            // router.push(`/artist/${item.id}` as any);
+        }
+    }, []);
+
+    const renderSection = useCallback(({ item: section }: { item: BrowseSectionItem }) => (
+        <HomeSection section={section} onCardPress={handlePress} />
+    ), [handlePress]);
 
     if (loading) {
         return (
@@ -68,58 +128,6 @@ export const HomeView = () => {
         );
     }
 
-    const handlePress = (item: GqlPlaylistSimplified | GqlAlbumSimplified | GqlArtist) => {
-        if (item.objectType === 'Playlist') {
-            router.push(`/playlist/${item.id}` as any);
-        } else if (item.objectType === 'Album') {
-            router.push(`/album/${item.id}` as any);
-        } else if (item.objectType === 'Artist') {
-            // router.push(`/artist/${item.id}` as any);
-        }
-    };
-
-    const renderItem = ({ item }: { item: GqlPlaylistSimplified | GqlAlbumSimplified | GqlArtist }) => (
-        <TouchableOpacity 
-            style={styles.card} 
-            activeOpacity={0.7}
-            onPress={() => handlePress(item)}
-        >
-            <View style={styles.imageContainer}>
-                <Image 
-                    source={{ uri: item.images?.[0]?.url || 'https://via.placeholder.com/150' }} 
-                    style={styles.cardImage} 
-                />
-            </View>
-            <Text style={styles.cardTitle} numberOfLines={1}>{item.name}</Text>
-            <Text style={styles.cardSubtitle} numberOfLines={1}>
-                {item.objectType === 'Playlist' ? 'Playlist' : item.objectType === 'Album' ? 'Album' : 'Artist'}
-            </Text>
-        </TouchableOpacity>
-    );
-
-    const renderSection = ({ item: section }: { item: BrowseSectionItem }) => {
-        if (!section.items || section.items.length === 0) return null;
-
-        return (
-            <View style={styles.sectionContainer}>
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>{section.title}</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.showAllText}>Show All</Text>
-                    </TouchableOpacity>
-                </View>
-                <FlatList
-                    data={section.items}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.uri}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.horizontalList}
-                />
-            </View>
-        );
-    };
-
     return (
         <FlatList
             data={sections.filter(s => s.items.length > 0 && s.title)}
@@ -134,6 +142,10 @@ export const HomeView = () => {
                 </View>
             )}
             contentContainerStyle={styles.listContent}
+            initialNumToRender={4}
+            windowSize={5}
+            maxToRenderPerBatch={4}
+            removeClippedSubviews={true}
         />
     );
 };
@@ -230,7 +242,6 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.bgSurface,
         overflow: 'hidden',
         marginBottom: Spacing.sm,
-        // Desktop glass effect likeness
         borderWidth: 1,
         borderColor: Colors.cardBorder,
     },
