@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="app/LuneDesktop/src/assets/Lune.png" width="150" alt="Lune Logo" />
+  <img src="src/assets/Lune.png" width="150" alt="Lune Logo" />
 
   <br />
 
@@ -24,14 +24,14 @@
 <br />
 
 <div align="center">
-  <img src="app/LuneDesktop/src/assets/Promotion/p4.png" width="100%" alt="Lune Hero" />
+  <img src="src/assets/Promotion/p4.png" width="100%" alt="Lune Hero" />
   <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
-      <td width="50%"><img src="app/LuneDesktop/src/assets/Promotion/p2.png" width="100%" alt="Lune Interface 2" /></td>
-      <td width="50%"><img src="app/LuneDesktop/src/assets/Promotion/p3.png" width="100%" alt="Lune Interface 3" /></td>
+      <td width="50%"><img src="src/assets/Promotion/p2.png" width="100%" alt="Lune Interface 2" /></td>
+      <td width="50%"><img src="src/assets/Promotion/p3.png" width="100%" alt="Lune Interface 3" /></td>
     </tr>
     <tr>
-      <td colspan="2"><img src="app/LuneDesktop/src/assets/Promotion/p1.png" width="100%" alt="Lune Interface 1" /></td>
+      <td colspan="2"><img src="src/assets/Promotion/p1.png" width="100%" alt="Lune Interface 1" /></td>
     </tr>
   </table>
 </div>
@@ -54,7 +54,7 @@ _Or grab the latest setup directly from **[Releases](https://github.com/saraansx
 
 ```bash
 git clone https://github.com/saraansx/Lune.git
-cd Lune/app/LuneDesktop
+cd Lune
 npm install
 npm run dev
 ```
