@@ -43,7 +43,6 @@
 | | |
 | :--- | :--- |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [WinGet](https://learn.microsoft.com/en-us/windows/package-manager/winget/) | `winget install saraansx.Lune` |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [Chocolatey](https://chocolatey.org/) | `choco install lune` |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="16" height="16" alt="Windows" style="vertical-align: middle;"/> Windows - [Scoop](https://scoop.sh/) | `scoop bucket add saraansx https://github.com/saraansx/scoop-bucket`<br>`scoop install lune` |
 
 _Or grab the latest setup directly from **[Releases](https://github.com/saraansx/Lune/releases)**._
