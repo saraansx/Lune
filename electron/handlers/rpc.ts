@@ -3,7 +3,7 @@ import * as DiscordRPC from 'discord-rpc';
 import Store from 'electron-store';
 import { StoreSchema, schema } from '../store.js';
 
-const clientId = '1477844140934037537';
+const clientId = '1487748905943695491';
 DiscordRPC.register(clientId);
 
 const store = new Store<StoreSchema>({ schema: schema as any });
