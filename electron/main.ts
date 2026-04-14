@@ -128,6 +128,10 @@ if (!gotTheLock) {
   win.once('ready-to-show', () => {
     win?.show();
     win?.focus();
+    // Delay slightly so the taskbar button is definitely registered
+    setTimeout(() => {
+      if (win) setThumbbar(false);
+    }, 1000);
   });
 
   win.on('close', (event) => {
@@ -182,6 +186,62 @@ function createTray() {
     }
   });
 }
+
+// ── Thumbnail Toolbar (Windows taskbar hover preview buttons) ──────────────
+function getThumbbarIconPath(name: string) {
+  return app.isPackaged
+    ? path.join(process.resourcesPath, 'thumbar', `${name}.png`)
+    : path.join(app.getAppPath(), 'src', 'assets', 'thumbar', `${name}.png`);
+}
+
+function setThumbbar(isPlaying: boolean) {
+  if (!win || process.platform !== 'win32') return;
+
+  try {
+    const getIcon = (name: string) => {
+      const p = getThumbbarIconPath(name);
+      if (fs.existsSync(p)) {
+        const buf = fs.readFileSync(p);
+        return nativeImage.createFromBuffer(buf);
+      }
+      return nativeImage.createEmpty();
+    };
+
+    const prevIcon = getIcon('prev');
+    const midIcon = getIcon(isPlaying ? 'pause' : 'play');
+    const nextIcon = getIcon('next');
+
+    win.setThumbarButtons([
+      { 
+        tooltip: 'Previous', 
+        icon: prevIcon,  
+        click: () => win?.webContents.send('tray-action', 'previous'),
+        flags: prevIcon.isEmpty() ? ['disabled'] : []
+      },
+      { 
+        tooltip: isPlaying ? 'Pause' : 'Play', 
+        icon: midIcon, 
+        click: () => win?.webContents.send('tray-action', 'play-pause'),
+        flags: midIcon.isEmpty() ? ['disabled'] : []
+      },
+      { 
+        tooltip: 'Next',     
+        icon: nextIcon,  
+        click: () => win?.webContents.send('tray-action', 'next'),
+        flags: nextIcon.isEmpty() ? ['disabled'] : []
+      },
+    ]);
+  } catch (err) {
+    console.error('[Thumbar] Failed to set buttons:', err);
+  }
+}
+
+let thumbarDebounce: ReturnType<typeof setTimeout> | null = null;
+// Renderer sends this whenever play/pause state changes
+ipcMain.on('thumbar-update', (_event, isPlaying: boolean) => {
+  if (thumbarDebounce) clearTimeout(thumbarDebounce);
+  thumbarDebounce = setTimeout(() => setThumbbar(isPlaying), 150);
+});
 
 // Window Management
 ipcMain.handle('minimize-window', () => win?.minimize());

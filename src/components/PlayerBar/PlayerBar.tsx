@@ -771,6 +771,11 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
         };
     }, []);
 
+    // Sync taskbar thumbnail toolbar play/pause icon
+    useEffect(() => {
+        window.ipcRenderer?.send('thumbar-update', isPlaying);
+    }, [isPlaying, currentTrack?.id]);
+
     useEffect(() => {
         const handleRestart = (e: Event) => {
             if (audioRef.current) {

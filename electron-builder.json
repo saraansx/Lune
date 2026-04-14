@@ -19,6 +19,10 @@
     {
       "from": "src/assets/Lune.png",
       "to": "Lune.png"
+    },
+    {
+      "from": "src/assets/thumbar",
+      "to": "thumbar"
     }
   ],
   "directories": {
