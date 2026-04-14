@@ -10,16 +10,20 @@ This update introduces a robust, proactive authentication system that automatica
 
 #### Added
 
+- **Dynamic Languages Support:** Added support for dynamically loading translations and changing the application language.
+- **Windows Taskbar Controls (Thumbar):** Added a native Windows thumbnail toolbar with quick-access playback controls (Previous, Play/Pause, Next) you can use while hovering over the app icon.
 - **Real-time 401 Error Detection:** The application now actively monitors all Spotify API requests for "Unauthorized" (401) responses. If a session expires while the app is running, it instantly triggers a background recovery instead of waiting for a scheduled timer.
 - **Proactive Token Refresh:** Implemented a global `onUnauthorized` hook that bridges all API endpoints to the main authentication controller, allowing for immediate "self-healing" of the application state.
 
 #### Changed
 
+- **Progress Bar UI Refinement:** Improved the visual design of the player bar by resizing the progress bar to make it larger and easier to click.
 - **Improved Session Resiliency:** Refactored the authentication lifecycle in `main.tsx` to hold onto user credentials during transient errors. The app no longer "gives up" on a session due to a single failed refresh, preventing users from being kicked to the "Log out anyway" setting state.
 - **Bypassable Refresh Cooldown:** Modified the Electron background process to ignore the standard 10-second refresh cooldown if a hard 401 error is detected, ensuring music playback and settings can recover the millisecond a connection is restored.
 
 #### Fixed
 
+- **Clear Queue Logic:** Fixed a bug where clicking the "Clear Queue" button wouldn't properly clear the list if Shuffle mode was enabled.
 - **Persistent "Log out anyway" Bug:** Fixed a logic error where the app would mark a session as invalid if a background refresh failed once, which previously forced users to manually log out and back in to fix the "Could not load profile" error in settings.
 - **Refresh Timer Suspension:** Corrected a bug in the token refresh logic where an already-expired token would wait 5 minutes to retry; it now retries in the background with increasing frequency while keeping the UI active.
 
