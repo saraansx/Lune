@@ -20,7 +20,7 @@ const QueueView: React.FC<{ onClose: () => void; onArtistSelect?: (id: string | 
         currentTrack,
         history,
         handleTrackSelect: onTrackSelect,
-        setQueue,
+        clearQueue,
         clearHistory: onClearHistory,
         handleRemoveFromQueue: onRemoveFromQueue,
         handlePlayNext,
@@ -28,7 +28,7 @@ const QueueView: React.FC<{ onClose: () => void; onArtistSelect?: (id: string | 
     } = usePlayer();
     const { t } = useLanguage();
 
-    const onClearQueue = () => setQueue([]);
+    const onClearQueue = () => clearQueue();
     const [isClosing, setIsClosing] = React.useState(false);
     const [activeTab, setActiveTab] = React.useState<'queue' | 'history'>('queue');
     const [contextMenu, setContextMenu] = React.useState<{ id: string, x: number, y: number, isBottom: boolean } | null>(null);

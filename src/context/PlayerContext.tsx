@@ -34,6 +34,7 @@ interface PlayerContextType {
   handleAddToQueue: (track: any) => void;
   handlePlayNext: (track: any) => void;
   handleRemoveFromQueue: (index: number) => void;
+  clearQueue: () => void;
   handleNextTrack: () => void;
   handlePrevTrack: (currentTime?: number) => void;
   formatTrackForPlayer: (t: any) => LuneTrack;
@@ -597,6 +598,11 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const clearQueue = () => {
+    setQueue([]);
+    setShuffledQueue([]);
+  };
+
   const startBulkDownload = async (id: string, tracks: LuneTrack[]) => {
     if (activeBulkDownloads.has(id)) return;
 
@@ -700,6 +706,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       handleAddToQueue,
       handlePlayNext,
       handleRemoveFromQueue,
+      clearQueue,
       handleNextTrack,
       handlePrevTrack,
       formatTrackForPlayer,
