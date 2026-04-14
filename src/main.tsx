@@ -10,7 +10,7 @@ import Playlist from './components/Playlist/Playlist';
 import SearchBar from './components/SearchBar/SearchBar';
 import { PlayerProvider, usePlayer } from './context/PlayerContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { PlaybackProvider } from './context/PlaybackContext';
 import { ApiProvider } from './context/ApiContext';
 import { SpotifyGqlApi } from '../Plugin/gql/index';
@@ -65,6 +65,47 @@ const FallbackLoader = () => (
     </div>
   </div>
 );
+
+/**
+ * DynamicColorSync — bridges PlayerContext → ThemeContext.
+ * Lives inside both providers so it can read from both.
+ * Watches albumArt on currentTrack and triggers colour extraction
+ * only when Dynamic Color mode is enabled.
+ */
+const DynamicColorSync: React.FC = () => {
+  const { currentTrack } = usePlayer();
+  const { dynamicColor, applyDynamicColor } = useTheme();
+  const lastAppliedUrl = React.useRef<string | null>(null);
+  const debounceRef    = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    if (!dynamicColor) return;
+    const url = currentTrack?.albumArt;
+    if (!url || url === lastAppliedUrl.current) return;
+
+    // Debounce so rapid skips only fire once
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      lastAppliedUrl.current = url;
+      applyDynamicColor(url);
+      debounceRef.current = null;
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [currentTrack?.albumArt, dynamicColor, applyDynamicColor]);
+
+  // When dynamic mode is toggled on mid-session, apply immediately
+  React.useEffect(() => {
+    if (dynamicColor && currentTrack?.albumArt) {
+      applyDynamicColor(currentTrack.albumArt);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dynamicColor]);
+
+  return null;
+};
 
 const MainLayout = ({ 
   credentials, 
@@ -764,6 +805,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <PlaybackProvider>
           <LanguageProvider>
             <PlayerProvider>
+              <DynamicColorSync />
               <App />
             </PlayerProvider>
           </LanguageProvider>
