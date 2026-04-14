@@ -1,6 +1,6 @@
 .player-bar {
   width: 100%;
-  height: 78px;
+  height: 84px;
   background: rgba(18, 18, 20, 0.85);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
+  padding: 0 30px;
   position: relative;
   z-index: 10000; /* Above Lyrics and Fullscreen Views */
   box-sizing: border-box;
@@ -27,10 +27,10 @@
 
 .album-art-wrapper {
   position: relative;
-  width: 50px;
-  height: 50px;
-  margin-right: 14px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  width: 54px;
+  height: 54px;
+  margin-right: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   border-radius: 6px;
   transition: transform 0.2s ease;
 }
@@ -87,9 +87,9 @@
 
 .player-track-name {
   color: var(--text-main);
-  font-size: 0.9rem;
+  font-size: 0.94rem;
   font-weight: 500;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   letter-spacing: -0.01em;
 }
 
@@ -101,7 +101,7 @@
 
 .player-track-artist {
   color: rgba(255, 255, 255, 0.6);
-  font-size: 0.77rem;
+  font-size: 0.8rem;
   white-space: nowrap;
   font-weight: 400;
   transition: color 0.2s ease;
@@ -219,8 +219,8 @@
 .player-main-controls {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 7px;
+  gap: 22px;
+  margin-bottom: 8px;
 }
 
 .control-btn {
@@ -253,8 +253,8 @@
 }
 
 .play-pause-btn {
-  width: 33px;
-  height: 33px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--text-main);
   color: #000;
