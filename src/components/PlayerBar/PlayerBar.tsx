@@ -16,6 +16,13 @@ import { usePlayer } from '../../context/PlayerContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatSeconds } from '../../utils/format';
 import { usePlayback } from '../../context/PlaybackContext';
+import type { LuneTrack } from '../../types/track';
+
+interface LocalPlaylist {
+    id: string;
+    name: string;
+    [key: string]: unknown;
+}
 
 const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) => void; accessToken?: string }> = ({
     onArtistSelect,
@@ -271,6 +278,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
 
     
     // ── Audio Output Device Logic ──────────────────────────────
+    const audioRefCurrent = !!audioRef.current;
     useEffect(() => {
         const applyDevice = async () => {
             if (audioRef.current && audioRef.current.setSinkId) {
@@ -283,15 +291,16 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             }
         };
         applyDevice();
-    }, [audioDeviceId, !!audioRef.current]);
+    }, [audioDeviceId, audioRefCurrent]);
 
     // ── Playback Speed Logic ───────────────────────────────────
+    const audioRefCurrent2 = !!audioRef.current;
     useEffect(() => {
         if (audioRef.current) {
             console.log(`[Audio] Setting playbackRate to: ${playbackSpeed}x`);
             audioRef.current.playbackRate = playbackSpeed;
         }
-    }, [playbackSpeed, !!audioRef.current]);
+    }, [playbackSpeed, audioRefCurrent2]);
 
     const sessionHistoryRef = useRef(sessionHistory);
     sessionHistoryRef.current = sessionHistory;
@@ -340,7 +349,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
     const progressTimeoutRef = useRef<number | null>(null);
 
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const [localPlaylists, setLocalPlaylists] = useState<any[]>([]);
+    const [localPlaylists, setLocalPlaylists] = useState<LocalPlaylist[]>([]);
     const [trackPlaylists, setTrackPlaylists] = useState<string[]>([]);
     const [showPlaylistSubmenu, setShowPlaylistSubmenu] = useState(false);
     const [isDownloadState, setIsDownloadState] = useState<boolean | null>(null);
@@ -385,7 +394,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                         baseTrack.artists?.[0]?.id ?? undefined,
                         30 
                     ),
-                    new Promise<any[]>((_, reject) => 
+                    new Promise<LuneTrack[]>((_, reject) => 
                         setTimeout(() => reject(new Error('Spotify API Timeout')), 8000)
                     )
                 ]);
@@ -407,7 +416,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                     const filteredTracks = randomized.filter(t => !recentIds.has(t.id));
                     logToSystem(`[Radio Pool] 🧹 Filtered pool: ${filteredTracks.length} unique tracks remaining.`);
                     
-                    const varietyTracks: any[] = [];
+                    const varietyTracks: LuneTrack[] = [];
                     const seenArtists = new Set<string>();
                     autoplayQueueRef.current.slice(-5).forEach(t => seenArtists.add(t.artist));
                     if (!seenArtists.has(currentTrack.artist)) seenArtists.add(currentTrack.artist);
@@ -458,6 +467,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             ignorePoolFetch = true;
             window.removeEventListener('lune:trigger-pool-fetch', fillPool);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrack?.id, accessToken, contextTracks.length, queue.length, autoplayEnabled]);
 
     const handleSkip = () => {
@@ -497,6 +507,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             setShowMoreMenu(false);
             setShowPlaylistSubmenu(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrack?.id]);
 
     const handleMoreMenuClick = async (e: React.MouseEvent) => {
@@ -626,6 +637,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                 setIsLoading(false);
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrack?.id, prefetchMap]); // Dependency on prefetchMap ensures we catch it if it finishes while we're loading
 
     // Unified Playback and URL Sync
@@ -707,6 +719,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
             isFirstLoad.current = false;
         }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrack?.id, isPlaying, streamUrl, isLoading]);
 
     // Independent Volume Sync
@@ -763,6 +776,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                 rpcSyncIntervalRef.current = null;
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentTrack?.id, currentTrack?.name, currentTrack?.artist, isPlaying, trackDuration, isLoading]);
 
     useEffect(() => {
@@ -792,7 +806,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
     }, []);
 
     useEffect(() => {
-        const handleTrayAction = (_event: any, action: string) => {
+        const handleTrayAction = (_event: unknown, action: string) => {
             if (action === 'play-pause') {
                 setIsPlaying(!isPlayingRef.current);
             } else if (action === 'next') {
@@ -1015,7 +1029,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                     </span>
                     <div className="player-track-artist-container">
                         {currentTrack.artists && currentTrack.artists.length > 0 ? (
-                            currentTrack.artists.map((artist: any, i: number, arr: any[]) => (
+                            currentTrack.artists.map((artist: { name: string; id: string | null }, i: number, arr: { name: string; id: string | null }[]) => (
                                 <React.Fragment key={(artist.id || artist.name) + i}>
                                     <span 
                                         className="player-track-artist"
@@ -1028,7 +1042,7 @@ const PlayerBar: React.FC<{ onArtistSelect?: (id: string | null, name: string) =
                                 </React.Fragment>
                             ))
                         ) : (
-                            currentTrack.artist.split(', ').map((artistName: string, i: number, arr: any[]) => (
+                            currentTrack.artist.split(', ').map((artistName: string, i: number, arr: string[]) => (
                                 <React.Fragment key={artistName + i}>
                                     <span 
                                         className="player-track-artist"

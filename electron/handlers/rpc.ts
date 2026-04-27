@@ -1,14 +1,39 @@
 import { ipcMain } from 'electron';
 import * as DiscordRPC from 'discord-rpc';
 import Store from 'electron-store';
+import type { Schema } from 'conf';
 import { StoreSchema, schema } from '../store.js';
+
+interface RPCActivity {
+    details: string;
+    state: string;
+    type: number;
+    assets: { large_image: string };
+    instance: boolean;
+    timestamps?: { start: number; end: number };
+}
+
+interface RPCUpdateOptions {
+    clear?: boolean;
+    title?: string;
+    artist?: string;
+    albumArt?: string;
+    duration?: number;
+    currentTime?: number;
+    isPlaying?: boolean;
+}
+
+// discord-rpc Client extended with the untyped `request` method
+interface RPCClientExtended extends DiscordRPC.Client {
+    request(cmd: string, args: Record<string, unknown>): Promise<unknown>;
+}
 
 const clientId = '1487748905943695491';
 DiscordRPC.register(clientId);
 
-const store = new Store<StoreSchema>({ schema: schema as any });
-let rpc: DiscordRPC.Client | null = null;
-let currentActivity: any = null;
+const store = new Store<StoreSchema>({ schema: schema as Schema<StoreSchema> });
+let rpc: RPCClientExtended | null = null;
+let currentActivity: RPCActivity | null = null;
 let progressInterval: NodeJS.Timeout | null = null;
 let autoClearTimeout: NodeJS.Timeout | null = null;
 
@@ -21,20 +46,20 @@ async function initRPC() {
 
     initPromise = (async () => {
         if (!rpc) {
-            rpc = new DiscordRPC.Client({ transport: 'ipc' });
+            rpc = new DiscordRPC.Client({ transport: 'ipc' }) as RPCClientExtended;
 
-            rpc.on('ready', () => {
+            (rpc as RPCClientExtended).on('ready', () => {
                 console.log('[Discord RPC] Connected');
                 isReady = true;
                 if (currentActivity) {
-                    (rpc as any)?.request('SET_ACTIVITY', {
+                    rpc?.request('SET_ACTIVITY', {
                         pid: process.pid,
                         activity: currentActivity
                     }).catch(console.warn);
                 }
             });
 
-            (rpc as any).on('disconnected', () => {
+            (rpc as unknown as NodeJS.EventEmitter).on('disconnected', () => {
                 console.log('[Discord RPC] Disconnected');
                 rpc = null;
                 isReady = false;
@@ -43,7 +68,7 @@ async function initRPC() {
         }
 
         try {
-            await rpc.login({ clientId });
+            await rpc!.login({ clientId });
             
             // Wait for isReady to become true (ready event might take a moment after login)
             let attempts = 0;
@@ -89,7 +114,7 @@ export function registerRPCHandlers() {
     if (isEnabled) {
         initRPC();
     }
-    store.onDidChange('discordRPC', (newValue: any) => {
+    store.onDidChange('discordRPC', (newValue: boolean | undefined) => {
         if (newValue) {
             if (!rpc) initRPC();
         } else {
@@ -101,7 +126,7 @@ export function registerRPCHandlers() {
         }
     });
 
-    ipcMain.handle('update-rpc', async (_, options: any) => {
+    ipcMain.handle('update-rpc', async (_, options: RPCUpdateOptions) => {
         if (!store.get('discordRPC', true)) {
             return;
         }
@@ -132,9 +157,9 @@ export function registerRPCHandlers() {
             initRPC();
         }
 
-        const activityObj: any = {
-            details: title,
-            state: artist,
+        const activityObj: RPCActivity = {
+            details: title || '',
+            state: artist || '',
             type: 2,
             assets: {
                 large_image: albumArt || 'lune_logo',
@@ -161,7 +186,7 @@ export function registerRPCHandlers() {
         currentActivity = activityObj;
 
         if (rpc && isReady) {
-            (rpc as any).request('SET_ACTIVITY', {
+            rpc.request('SET_ACTIVITY', {
                 pid: process.pid,
                 activity: activityObj
             }).catch(console.warn);
