@@ -2,6 +2,12 @@ name: Publish to WinGet
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name (e.g. v1.0.3)'
+        required: false
+        default: ''
 
 jobs:
   winget:
@@ -15,3 +21,4 @@ jobs:
           installers-regex: 'Lune-Setup-.*\.exe$' 
           token: ${{ secrets.WINGET_GH_TOKEN }}
           max-retries: 10
+          release-tag: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}

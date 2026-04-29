@@ -2,6 +2,12 @@ name: Scoop Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name (e.g. v1.0.3)'
+        required: false
+        default: ''
 
 jobs:
   publish:
@@ -14,8 +20,17 @@ jobs:
       - name: Update Version Data
         id: version_info
         run: |
-          $version = "${{ github.event.release.tag_name }}".TrimStart('v')
-          $url = "https://github.com/saraansx/Lune/releases/download/${{ github.event.release.tag_name }}/Lune-Setup-${version}.exe"
+          $tag = "${{ github.event.release.tag_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = "${{ github.event.inputs.tag_name }}"
+          }
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            $tag = (Get-Content package.json | ConvertFrom-Json).version
+            if ($tag -notmatch "^v") { $tag = "v$tag" }
+          }
+          
+          $version = $tag.TrimStart('v')
+          $url = "https://github.com/saraansx/Lune/releases/download/$tag/Lune-Setup-${version}.exe"
           
           Write-Host "Waiting for release assets to be available..."
           $maxRetries = 10
@@ -78,4 +93,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add bucket/lune.json
           git commit -m "chore: update lune to ${{ github.event.release.tag_name }}"
-          git push
+          git push origin HEAD:main
