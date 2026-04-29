@@ -1,4 +1,4 @@
-name: Chocolatey & Scoop Release
+name: Scoop Release
 on:
   release:
     types: [published]
@@ -17,6 +17,29 @@ jobs:
           $version = "${{ github.event.release.tag_name }}".TrimStart('v')
           $url = "https://github.com/saraansx/Lune/releases/download/${{ github.event.release.tag_name }}/Lune-Setup-${version}.exe"
           
+          Write-Host "Waiting for release assets to be available..."
+          $maxRetries = 10
+          $retryCount = 0
+          $success = $false
+          
+          while (-not $success -and $retryCount -lt $maxRetries) {
+            try {
+              $response = Invoke-WebRequest -Method Head -Uri $url -ErrorAction Stop
+              if ($response.StatusCode -eq 200) {
+                $success = $true
+              }
+            } catch {
+              Write-Host "Attempt $($retryCount + 1): Asset not available yet. Retrying in 30s..."
+              Start-Sleep -Seconds 30
+              $retryCount++
+            }
+          }
+          
+          if (-not $success) {
+            Write-Error "Asset not found at $url after $maxRetries attempts."
+            exit 1
+          }
+          
           Write-Host "Downloading $url to calculate hash..."
           Invoke-WebRequest -Uri $url -OutFile "Lune-Setup.exe"
           $hash = (Get-FileHash "Lune-Setup.exe" -Algorithm SHA256).Hash
@@ -27,26 +50,6 @@ jobs:
           echo "version=$version" >> $env:GITHUB_OUTPUT
           echo "hash=$hash" >> $env:GITHUB_OUTPUT
           echo "url=$url" >> $env:GITHUB_OUTPUT
-          
-          # 1. Update Chocolatey .nuspec XML
-          $nuspecPath = "chocolatey/lune.nuspec"
-          [xml]$xml = Get-Content $nuspecPath
-          $xml.package.metadata.version = $version
-          $xml.Save((Get-Item $nuspecPath).FullName)
-          
-          # 2. Update chocolateyinstall.ps1
-          $scriptPath = "chocolatey/tools/chocolateyinstall.ps1"
-          $script = Get-Content $scriptPath
-          $script = $script -replace "\$url64\s*=\s*'.*'", "`$url64      = '$url'"
-          $script = $script -replace "\$checksum64\s*=\s*'.*'", "`$checksum64 = '$hash'"
-          $script | Set-Content $scriptPath
-
-      - name: Pack and Publish to Chocolatey
-        working-directory: chocolatey
-        run: |
-          choco pack
-          $nupkg = Get-ChildItem -Filter *.nupkg | Select-Object -First 1
-          echo "Y" | choco push $nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
 
       - name: Update Scoop Manifest
         uses: actions/checkout@v4
@@ -58,7 +61,11 @@ jobs:
       - name: Modify Scoop JSON
         run: |
           $jsonPath = "scoop-bucket-repo/bucket/lune.json"
-          $json = Get-Content $jsonPath | ConvertFrom-Json
+          if (-not (Test-Path $jsonPath)) {
+            Write-Error "Scoop manifest not found at $jsonPath"
+            exit 1
+          }
+          $json = Get-Content $jsonPath -Raw | ConvertFrom-Json
           $json.version = "${{ steps.version_info.outputs.version }}"
           $json.architecture.'64bit'.url = "${{ steps.version_info.outputs.url }}#/dl.7z"
           $json.architecture.'64bit'.hash = "${{ steps.version_info.outputs.hash }}"
@@ -71,12 +78,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add bucket/lune.json
           git commit -m "chore: update lune to ${{ github.event.release.tag_name }}"
-          git push
-
-      - name: Commit Local Choco Changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add chocolatey/lune.nuspec chocolatey/tools/chocolateyinstall.ps1
-          git commit -m "chore(choco): update chocolatey manifest for ${{ github.event.release.tag_name }} [skip ci]"
           git push
