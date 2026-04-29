@@ -20,5 +20,4 @@ jobs:
           identifier: saraansx.Lune
           installers-regex: 'Lune-Setup-.*\.exe$' 
           token: ${{ secrets.WINGET_GH_TOKEN }}
-          max-retries: 10
           release-tag: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
