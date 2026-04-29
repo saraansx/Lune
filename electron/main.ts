@@ -29,12 +29,12 @@ import { addToLog } from './logger.js';
 const originalLog = console.log;
 const originalError = console.error;
 
-console.log = (...args: any[]) => {
+console.log = (...args: unknown[]) => {
     originalLog(...args);
     addToLog('info', ...args);
 };
 
-console.error = (...args: any[]) => {
+console.error = (...args: unknown[]) => {
     originalError(...args);
     addToLog('error', ...args);
 };
@@ -298,22 +298,12 @@ async function harvestYouTubeCookies(): Promise<boolean> {
     }
 }
 
-// Background Task
-// Background Task: Auto-harvest cookies
-let lastCookieAttempt = Date.now();
-let lastHarvestFailed = false;
+  // Track current app version
+  store.set('app_version', app.getVersion());
 
-setInterval(async () => {
-    const now = Date.now();
-    // Normal: 4 hours | Error: 5 minutes
-    const cooldown = lastHarvestFailed ? 5 * 60 * 1000 : 4 * 60 * 60 * 1000;
-    
-    if (now - lastCookieAttempt < cooldown) return;
-    if (activeSearches.size > 0 || activeDownloads.size > 0) return;
-
-    lastCookieAttempt = now;
-    lastHarvestFailed = !(await harvestYouTubeCookies());
-}, 1 * 60 * 1000);
+  // Increment startup count
+  const count = (store.get('startup_count') || 0) + 1;
+  store.set('startup_count', count);
 
 // App Lifecycle
 app.whenReady().then(async () => {
@@ -351,8 +341,9 @@ app.whenReady().then(async () => {
             win?.webContents.send('ytdlp-update-status', { status: 'idle' });
           }, 5000);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.warn('[Main] yt-dlp update failed:', err);
+        const error = err as Error;
         if (manual) {
           win?.webContents.send('ytdlp-update-status', { 
             status: 'error', 

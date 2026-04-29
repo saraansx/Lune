@@ -5,29 +5,13 @@ import * as nodeUrl from 'node:url';
 import { getDatabase } from '../database.js';
 import { ytDlp, activeSearches, activeDownloads } from '../streaming.js';
 import { StoreSchema, schema } from '../store.js';
-import Store, { Schema } from 'electron-store';
-const store = new Store<StoreSchema>({ schema: schema as unknown as Schema<StoreSchema> });
+import Store from 'electron-store';
 
-interface TrackData {
-    id?: string;
-    trackId?: string;
-    name?: string;
-    artists?: (string | { name: string })[];
-    artist?: string;
-    albumName?: string;
-    album?: { name?: string; images?: { url: string }[] };
-    albumArt?: string;
-    albumArtFull?: string;
-    images?: { url: string }[];
-    durationMs?: number;
-    duration_ms?: number;
-    duration?: { totalMilliseconds: number };
-    trackDuration?: { totalMilliseconds: number };
-}
+const store = new Store<StoreSchema>({ schema: schema as any }); 
 
-function normalizeTrackForDB(track: TrackData) {
+function normalizeTrackForDB(track: any) {
     const artist = Array.isArray(track.artists)
-        ? track.artists.map((a: string | { name: string }) => typeof a === 'string' ? a : (a.name || '')).join(', ')
+        ? track.artists.map((a: any) => typeof a === 'string' ? a : (a.name || '')).join(', ')
         : track.artist || 'Unknown Artist';
 
     return {
@@ -49,9 +33,7 @@ export function registerStreamingHandlers() {
             try {
                 await fs.promises.access(customDir);
                 return customDir;
-            } catch (e) {
-                // Ignore directory access error
-            }
+            } catch (e) {}
         }
         const defaultDir = path.join(app.getPath('userData'), 'downloads');
         try {
@@ -70,9 +52,7 @@ export function registerStreamingHandlers() {
                     try {
                         await fs.promises.access(local.localPath);
                         return `lune-local://f/${Buffer.from(local.localPath).toString('hex')}`;
-                    } catch (e) {
-                        // Ignore local file access error
-                    }
+                    } catch (e) {}
                 }
             }
 
@@ -111,8 +91,8 @@ export function registerStreamingHandlers() {
                     }
                 }
             }
-        } catch (error) {
-            if ((error as Error).name === 'AbortError') {
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
                 return '';
             }
             console.error('Error fetching stream URL:', error);
