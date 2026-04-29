@@ -1,7 +1,5 @@
 name: Scoop Release
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag_name:
