@@ -1,17 +1,17 @@
 import { ipcMain, dialog, app, BrowserWindow, shell } from 'electron';
-import Store from 'electron-store';
+import Store, { Schema } from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 import { StoreSchema, schema } from '../store.js';
 
-const store = new Store<StoreSchema>({ schema: schema as any });
+const store = new Store<StoreSchema>({ schema: schema as unknown as Schema<StoreSchema> });
 
 export function registerSettingsHandlers() {
     ipcMain.handle('get-setting', (_event, key: keyof StoreSchema) => {
         return store.get(key);
     });
 
-    ipcMain.handle('set-setting', (_event, key: keyof StoreSchema, value: any) => {
+    ipcMain.handle('set-setting', (_event, key: keyof StoreSchema, value: StoreSchema[keyof StoreSchema]) => {
         store.set(key, value);
         return true;
     });

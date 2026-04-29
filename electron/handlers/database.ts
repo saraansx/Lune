@@ -2,9 +2,26 @@ import { ipcMain } from 'electron';
 import fs from 'fs';
 import { getDatabase } from '../database.js';
 
-function normalizeTrackForDB(track: any) {
+interface TrackData {
+    id?: string;
+    trackId?: string;
+    name?: string;
+    artists?: (string | { name: string })[];
+    artist?: string;
+    albumName?: string;
+    album?: { name?: string; images?: { url: string }[] };
+    albumArt?: string;
+    albumArtFull?: string;
+    images?: { url: string }[];
+    durationMs?: number;
+    duration_ms?: number;
+    duration?: { totalMilliseconds: number };
+    trackDuration?: { totalMilliseconds: number };
+}
+
+function normalizeTrackForDB(track: TrackData) {
     const artist = Array.isArray(track.artists)
-        ? track.artists.map((a: any) => typeof a === 'string' ? a : (a.name || '')).join(', ')
+        ? track.artists.map((a: string | { name: string }) => typeof a === 'string' ? a : (a.name || '')).join(', ')
         : track.artist || 'Unknown Artist';
 
     return {
@@ -151,9 +168,15 @@ export function registerDatabaseHandlers() {
             const stmt = db.prepare('SELECT * FROM downloads ORDER BY downloadedAt DESC');
             const items = stmt.all();
             
+            interface DownloadItem {
+                id: string;
+                localPath: string;
+                [key: string]: unknown;
+            }
+
             // Perform existence checks in parallel
             const checkResults = await Promise.all(
-                items.map(async (item: any) => {
+                (items as DownloadItem[]).map(async (item: DownloadItem) => {
                     if (!item.localPath) return { item, exists: false };
                     try {
                         await fs.promises.access(item.localPath);
@@ -330,8 +353,8 @@ export function registerDatabaseHandlers() {
         if (!db) return [];
         try {
             const stmt = db.prepare('SELECT playlistId FROM playlist_tracks WHERE trackId = ?');
-            const results = stmt.all(trackId);
-            return results.map((r: any) => r.playlistId);
+            const results = stmt.all(trackId) as { playlistId: string }[];
+            return results.map((r) => r.playlistId);
         } catch (error) {
             console.error('Get Track Playlists Error', error);
             return [];

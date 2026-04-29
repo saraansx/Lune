@@ -1,11 +1,12 @@
 import { ipcMain, session } from 'electron';
 import { ElectronSpotifyAuth } from '../../Plugin/electron-auth.js';
-import Store from 'electron-store';
+import Store, { Schema } from 'electron-store';
 const spotifyAuth = new ElectronSpotifyAuth();
 import { StoreSchema, schema } from '../store.js';
-const store = new Store<StoreSchema>({ schema: schema as any });
+import { SpotifyCredentials } from '../../Plugin/types.js';
+const store = new Store<StoreSchema>({ schema: schema as unknown as Schema<StoreSchema> });
 
-let activeRefreshPromise: Promise<any> | null = null;
+let activeRefreshPromise: Promise<Pick<SpotifyCredentials, 'accessToken' | 'expiration'>> | null = null;
 let lastRefreshAttempt = 0;
 const REFRESH_COOLDOWN = 10000; // 10 seconds
 
@@ -17,7 +18,7 @@ export function registerSpotifyHandlers() {
             store.set('spotify_cookies', credentials.cookies);
             store.set('spotify_expires_at', credentials.expiration);
             return credentials;
-        } catch (error: any) {
+        } catch (error) {
             console.error('Spotify Login Error:', error);
             return { success: false, error: String(error) };
         }
@@ -32,7 +33,7 @@ export function registerSpotifyHandlers() {
             const isExpired = !expiration || Date.now() > (expiration - 30000);
 
             if (isExpired || forceRefresh) {
-                const spDcCookie = cookies?.find((c: any) => c.name === 'sp_dc');
+                const spDcCookie = (cookies as { name: string; value: string }[])?.find((c) => c.name === 'sp_dc');
 
                 if (!spDcCookie) {
                     store.delete('spotify_access_token');
@@ -60,14 +61,16 @@ export function registerSpotifyHandlers() {
 
                 try {
                     const newCreds = await activeRefreshPromise;
+                    if (!newCreds) return null;
                     return {
                         accessToken: newCreds.accessToken,
                         cookies: cookies,
                         expiration: newCreds.expiration
                     };
-                } catch (error: any) {
+                } catch (error) {
                     console.error('Failed to refresh token:', error);
-                    if (error?.response?.status >= 400 && error?.response?.status < 500) {
+                    const axiosError = error as { response?: { status: number } };
+                    if (axiosError?.response?.status && axiosError.response.status >= 400 && axiosError.response.status < 500) {
                         store.delete('spotify_access_token');
                         store.delete('spotify_cookies');
                         store.delete('spotify_expires_at');
