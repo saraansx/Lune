@@ -3,9 +3,9 @@ import { ElectronSpotifyAuth } from '../../Plugin/electron-auth.js';
 import Store from 'electron-store';
 const spotifyAuth = new ElectronSpotifyAuth();
 import { StoreSchema, schema } from '../store.js';
-const store = new Store<StoreSchema>({ schema: schema as any });
+const store = new Store<StoreSchema>({ schema: schema as Record<string, unknown> });
 
-let activeRefreshPromise: Promise<any> | null = null;
+let activeRefreshPromise: Promise<{ accessToken: string; expiration: number }> | null = null;
 let lastRefreshAttempt = 0;
 const REFRESH_COOLDOWN = 10000; // 10 seconds
 
@@ -17,7 +17,7 @@ export function registerSpotifyHandlers() {
             store.set('spotify_cookies', credentials.cookies);
             store.set('spotify_expires_at', credentials.expiration);
             return credentials;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Spotify Login Error:', error);
             return { success: false, error: String(error) };
         }
@@ -32,7 +32,7 @@ export function registerSpotifyHandlers() {
             const isExpired = !expiration || Date.now() > (expiration - 30000);
 
             if (isExpired || forceRefresh) {
-                const spDcCookie = cookies?.find((c: any) => c.name === 'sp_dc');
+                const spDcCookie = cookies?.find((c: { name: string; value: string }) => c.name === 'sp_dc');
 
                 if (!spDcCookie) {
                     store.delete('spotify_access_token');
@@ -65,9 +65,10 @@ export function registerSpotifyHandlers() {
                         cookies: cookies,
                         expiration: newCreds.expiration
                     };
-                } catch (error: any) {
+                } catch (error: unknown) {
                     console.error('Failed to refresh token:', error);
-                    if (error?.response?.status >= 400 && error?.response?.status < 500) {
+                    const err = error as { response?: { status?: number } };
+                    if (err?.response?.status && err.response.status >= 400 && err.response.status < 500) {
                         store.delete('spotify_access_token');
                         store.delete('spotify_cookies');
                         store.delete('spotify_expires_at');

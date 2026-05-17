@@ -2,9 +2,31 @@ import { ipcMain } from 'electron';
 import fs from 'fs';
 import { getDatabase } from '../database.js';
 
-function normalizeTrackForDB(track: any) {
+type TrackArtist = string | { name?: string };
+
+type TrackData = {
+    id?: string;
+    trackId?: string;
+    name?: string;
+    artists?: TrackArtist[];
+    artist?: string;
+    albumName?: string;
+    album?: {
+        name?: string;
+        images?: { url?: string }[];
+    };
+    albumArt?: string;
+    albumArtFull?: string;
+    images?: { url?: string }[];
+    durationMs?: number;
+    duration_ms?: number;
+    duration?: { totalMilliseconds?: number };
+    trackDuration?: { totalMilliseconds?: number };
+};
+
+function normalizeTrackForDB(track: TrackData) {
     const artist = Array.isArray(track.artists)
-        ? track.artists.map((a: any) => typeof a === 'string' ? a : (a.name || '')).join(', ')
+        ? track.artists.map((a: TrackArtist) => typeof a === 'string' ? a : (a.name || '')).join(', ')
         : track.artist || 'Unknown Artist';
 
     return {
@@ -153,7 +175,7 @@ export function registerDatabaseHandlers() {
             
             // Perform existence checks in parallel
             const checkResults = await Promise.all(
-                items.map(async (item: any) => {
+                items.map(async (item: Record<string, unknown> & { id: string; localPath?: string }) => {
                     if (!item.localPath) return { item, exists: false };
                     try {
                         await fs.promises.access(item.localPath);
@@ -331,7 +353,7 @@ export function registerDatabaseHandlers() {
         try {
             const stmt = db.prepare('SELECT playlistId FROM playlist_tracks WHERE trackId = ?');
             const results = stmt.all(trackId);
-            return results.map((r: any) => r.playlistId);
+            return results.map((r: { playlistId: string }) => r.playlistId);
         } catch (error) {
             console.error('Get Track Playlists Error', error);
             return [];
