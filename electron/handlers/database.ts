@@ -175,7 +175,7 @@ export function registerDatabaseHandlers() {
             
             // Perform existence checks in parallel
             const checkResults = await Promise.all(
-                items.map(async (item: Record<string, unknown> & { id: string; localPath?: string }) => {
+                (items as Array<Record<string, unknown> & { id: string; localPath?: string }>).map(async (item) => {
                     if (!item.localPath) return { item, exists: false };
                     try {
                         await fs.promises.access(item.localPath);
@@ -216,7 +216,7 @@ export function registerDatabaseHandlers() {
     ipcMain.handle('check-is-downloaded', async (_event, id) => {
         if (!db) return false;
         try {
-            const result = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(id);
+            const result = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(id) as { localPath?: string } | undefined;
             if (result && result.localPath) {
                 try {
                     await fs.promises.access(result.localPath);
@@ -290,6 +290,7 @@ export function registerDatabaseHandlers() {
     });
 
     ipcMain.handle('get-playlist', (_event, id) => {
+        if (!db) return null;
         try {
             const stmt = db.prepare('SELECT * FROM playlists WHERE id = ?');
             return stmt.get(id);
@@ -352,8 +353,8 @@ export function registerDatabaseHandlers() {
         if (!db) return [];
         try {
             const stmt = db.prepare('SELECT playlistId FROM playlist_tracks WHERE trackId = ?');
-            const results = stmt.all(trackId);
-            return results.map((r: { playlistId: string }) => r.playlistId);
+            const results = stmt.all(trackId) as Array<{ playlistId: string }>;
+            return results.map((r) => r.playlistId);
         } catch (error) {
             console.error('Get Track Playlists Error', error);
             return [];

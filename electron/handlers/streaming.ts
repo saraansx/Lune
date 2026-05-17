@@ -71,7 +71,7 @@ export function registerStreamingHandlers() {
     ipcMain.handle('get-stream-url', async (_event, trackName: string, artistName: string, trackId: string = 'unknown', isPriority: boolean = false, requester: string = 'unknown') => {
         try {
             if (trackId && trackId !== 'unknown' && db) {
-                const local = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(trackId);
+                const local = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(trackId) as { localPath?: string } | undefined;
                 if (local && local.localPath) {
                     try {
                         await fs.promises.access(local.localPath);
@@ -196,7 +196,7 @@ export function registerStreamingHandlers() {
         }
 
         try {
-            const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(normalized.id);
+            const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(normalized.id) as { localPath?: string } | undefined;
             if (existing && existing.localPath) {
                 if (fs.existsSync(existing.localPath)) {
                     return true;
@@ -276,7 +276,7 @@ export function registerStreamingHandlers() {
         }
         if (!db) return false;
         try {
-            const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(id);
+            const existing = db.prepare('SELECT localPath FROM downloads WHERE id = ?').get(id) as { localPath?: string } | undefined;
             if (existing && existing.localPath) {
                 try {
                     await fs.promises.unlink(existing.localPath);

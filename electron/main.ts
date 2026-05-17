@@ -72,7 +72,7 @@ if (!gotTheLock) {
     }
   })
 
-  const store = new Store<StoreSchema>({ schema: schema as any });
+  const store = new Store<StoreSchema>({ schema: schema as Record<string, unknown> });
   
   // Track current app version
   store.set('app_version', app.getVersion());
@@ -85,7 +85,7 @@ if (!gotTheLock) {
   let tray: Tray | null = null;
   let isQuitting = false;
 
-  function createWindow() {
+  const createWindow = () => {
   const bounds = store.get('windowBounds');
 
   // In packaged mode, the icon is in extraResources folder; in dev mode, use src/assets
@@ -152,7 +152,7 @@ if (!gotTheLock) {
   }
 }
 
-function createTray() {
+const createTray = () => {
   if (tray) return;
 
   const iconPath = app.isPackaged 
@@ -188,13 +188,13 @@ function createTray() {
 }
 
 // ── Thumbnail Toolbar (Windows taskbar hover preview buttons) ──────────────
-function getThumbbarIconPath(name: string) {
+const getThumbbarIconPath = (name: string) => {
   return app.isPackaged
     ? path.join(process.resourcesPath, 'thumbar', `${name}.png`)
     : path.join(app.getAppPath(), 'src', 'assets', 'thumbar', `${name}.png`);
 }
 
-function setThumbbar(isPlaying: boolean) {
+const setThumbbar = (isPlaying: boolean) => {
   if (!win || process.platform !== 'win32') return;
 
   try {
@@ -252,7 +252,7 @@ ipcMain.handle('maximize-window', () => {
 ipcMain.handle('close-window', () => win?.close());
 
 // Cookie Harvesting
-async function harvestYouTubeCookies(): Promise<boolean> {
+const harvestYouTubeCookies = async (): Promise<boolean> => {
     try {
         const ytCookiesPath = path.join(app.getPath('userData'), 'yt-cookies.txt');
         const ytSession = session.fromPartition('persist:youtube');
@@ -266,8 +266,9 @@ async function harvestYouTubeCookies(): Promise<boolean> {
         try {
             await hiddenWin.loadURL('https://www.youtube.com');
             await new Promise(resolve => setTimeout(resolve, 3000));
-        } catch (loadErr: any) {
-            if (loadErr?.code !== 'ERR_ABORTED') {
+        } catch (loadErr: unknown) {
+            const err = loadErr as { code?: string };
+            if (err?.code !== 'ERR_ABORTED') {
                 console.warn('[YtCookies] Page load failed:', loadErr);
             }
         } finally {
@@ -298,12 +299,7 @@ async function harvestYouTubeCookies(): Promise<boolean> {
     }
 }
 
-  // Track current app version
-  store.set('app_version', app.getVersion());
 
-  // Increment startup count
-  const count = (store.get('startup_count') || 0) + 1;
-  store.set('startup_count', count);
 
 // App Lifecycle
 app.whenReady().then(async () => {
@@ -341,18 +337,18 @@ app.whenReady().then(async () => {
             win?.webContents.send('ytdlp-update-status', { status: 'idle' });
           }, 5000);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.warn('[Main] yt-dlp update failed:', err);
         const error = err as Error;
         if (manual) {
           win?.webContents.send('ytdlp-update-status', { 
             status: 'error', 
-            message: err.message?.includes('403') ? 'Rate limit exceeded. Try again later.' : 'Failed to update playback drivers.' 
+            message: error.message?.includes('403') ? 'Rate limit exceeded. Try again later.' : 'Failed to update playback drivers.' 
           });
         }
         
         // If rate limited, set last update to almost now so we don't spam 403s
-        if (err.message?.includes('403')) {
+        if (error.message?.includes('403')) {
            store.set('lastYtdlpUpdate', Date.now() - (23 * 60 * 60 * 1000)); 
         }
 
@@ -497,7 +493,7 @@ app.whenReady().then(async () => {
         stream.destroy();
       });
 
-      return new Response(Readable.toWeb(stream) as any, {
+      return new Response(Readable.toWeb(stream) as unknown as BodyInit, {
         status,
         headers
       });
