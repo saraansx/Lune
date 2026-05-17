@@ -14,6 +14,8 @@ interface ThemeContextType {
   dynamicColor: boolean;
   setDynamicColor: (v: boolean) => void;
   applyDynamicColor: (imageUrl: string) => void;
+  isInApp: boolean;
+  setIsInApp: (v: boolean) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -148,6 +150,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [dynamicColor,   setDynamicColorState]   = useState<boolean>(
     () => localStorage.getItem('lune_dynamic_color') === 'true',
   );
+  const [isInApp, setIsInApp] = useState(false);
 
   // Load persisted preferences on mount
   useEffect(() => {
@@ -159,9 +162,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   // Sync accent (static) → CSS vars whenever dynamic mode is OFF
+  // When not in app (login/splash), always force default blue
   useEffect(() => {
-    if (dynamicColor) return;
-    const theme = ACCENT_COLORS[accentColor];
+    if (dynamicColor && isInApp) return;
+    const theme = isInApp ? ACCENT_COLORS[accentColor] : ACCENT_COLORS['blue'];
     const root  = document.documentElement;
     root.style.setProperty('--accent',      theme.hex);
     root.style.setProperty('--accent-main', theme.hex);
@@ -171,7 +175,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       radial-gradient(at 100% 0%, rgba(${theme.mesh2}, 0.4) 0, transparent 40%),
       radial-gradient(at 50% 100%,rgba(${theme.mesh3}, 0.3) 0, transparent 50%)`);
     root.setAttribute('data-density', layoutDensity);
-  }, [accentColor, layoutDensity, dynamicColor]);
+  }, [accentColor, layoutDensity, dynamicColor, isInApp]);
 
   // Keep density attr in sync regardless of dynamic mode
   useEffect(() => {
@@ -200,7 +204,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   /** Called by DynamicColorSync whenever the current track's album art changes. */
   const applyDynamicColor = async (imageUrl: string) => {
-    if (!imageUrl) return;
+    if (!imageUrl || !isInApp) return;
     try {
       const toRgb   = await extractDominantColor(imageUrl);
       const fromRgb = getCurrentAccentRgb();
@@ -216,6 +220,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       layoutDensity, setLayoutDensity,
       dynamicColor, setDynamicColor,
       applyDynamicColor,
+      isInApp, setIsInApp,
     }}>
       {children}
     </ThemeContext.Provider>

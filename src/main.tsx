@@ -74,12 +74,12 @@ const FallbackLoader = () => (
  */
 const DynamicColorSync: React.FC = () => {
   const { currentTrack } = usePlayer();
-  const { dynamicColor, applyDynamicColor } = useTheme();
+  const { dynamicColor, applyDynamicColor, isInApp } = useTheme();
   const lastAppliedUrl = React.useRef<string | null>(null);
   const debounceRef    = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
-    if (!dynamicColor) return;
+    if (!dynamicColor || !isInApp) return;
     const url = currentTrack?.albumArt;
     if (!url || url === lastAppliedUrl.current) return;
 
@@ -94,15 +94,15 @@ const DynamicColorSync: React.FC = () => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [currentTrack?.albumArt, dynamicColor, applyDynamicColor]);
+  }, [currentTrack?.albumArt, dynamicColor, applyDynamicColor, isInApp]);
 
   // When dynamic mode is toggled on mid-session, apply immediately
   React.useEffect(() => {
-    if (dynamicColor && currentTrack?.albumArt) {
+    if (dynamicColor && isInApp && currentTrack?.albumArt) {
       applyDynamicColor(currentTrack.albumArt);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dynamicColor]);
+  }, [dynamicColor, isInApp]);
 
   return null;
 };
@@ -469,6 +469,12 @@ const App = () => {
   const [ytdlpStatus, setYtdlpStatus] = React.useState<any>({ status: 'idle' });
   const [appUpdateStatus, setAppUpdateStatus] = React.useState<any>({ status: 'idle' });
   const preOfflineState = React.useRef<any>(null);
+  const { setIsInApp } = useTheme();
+
+  // Sync auth state → theme context so login/splash always use blue
+  React.useEffect(() => {
+    setIsInApp(isAuthenticated && !showSplash);
+  }, [isAuthenticated, showSplash, setIsInApp]);
 
   React.useEffect(() => {
     if (!window.ipcRenderer) return;
