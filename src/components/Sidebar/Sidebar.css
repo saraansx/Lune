@@ -1,14 +1,14 @@
 .sidebar {
-    width: 280px;
+    width: 272px;
     height: 100%;
-    background: rgba(8, 8, 10, 0.5);
+    background: rgba(8, 10, 14, 0.45);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    padding: 14px;
     box-sizing: border-box;
-    border-right: 1px solid rgba(255, 255, 255, 0.03);
+    border-right: 1px solid rgba(255, 255, 255, 0.025);
     overflow: hidden;
     position: relative;
     z-index: 2;
@@ -17,9 +17,7 @@
 
 .sidebar.collapsed {
     width: 72px;
-    /* Collapsed width */
     padding: 12px 8px;
-    /* Reduce padding */
 }
 
 /* Header */
@@ -27,7 +25,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -35,7 +33,7 @@
 .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     color: var(--text-dim);
     transition: color 0.2s;
@@ -61,69 +59,74 @@
 }
 
 .sidebar-header h2 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     color: inherit;
     margin: 0;
     white-space: nowrap;
+    letter-spacing: -0.01em;
+    opacity: 0.85;
 }
 
 .sidebar-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .add-btn {
     background: transparent;
     border: none;
     color: var(--text-dim);
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
+    opacity: 0.7;
 }
 
 .add-btn:hover {
     background: var(--card-hover);
     color: var(--text-main);
+    opacity: 1;
 }
 
 /* Filters */
 .library-filters {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 12px;
-    margin-bottom: 16px;
+    gap: 6px 8px;
+    margin-bottom: 14px;
     padding-left: 8px;
     padding-right: 8px;
 }
 
 .filter-pill {
-    background: rgba(255, 255, 255, 0.07);
-    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-dim);
     border: 1px solid transparent;
-    border-radius: 16px;
-    padding: 5px 13px;
-    font-size: 13px;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    text-align: center;
 }
 
 .filter-pill:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
 }
 
 .filter-pill.active {
-    background: rgba(var(--accent-rgb), 0.2);
+    background: rgba(var(--accent-rgb), 0.12);
     color: var(--text-main);
-    border: 1px solid rgba(var(--accent-rgb), 0.4);
-    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
 }
 
 /* Library List */
@@ -132,25 +135,23 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     padding-bottom: 24px;
-    /* Custom Scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
 .library-list::-webkit-scrollbar {
-    width: 8px;
+    width: 5px;
 }
 
 .sidebar.collapsed .library-list::-webkit-scrollbar {
     display: none;
-    /* Hide scrollbar in collapsed mode for cleaner look */
 }
 
 .library-list::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
 }
 
 .library-list::-webkit-scrollbar-track {
@@ -162,12 +163,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px;
-    border-radius: 6px;
+    padding: 6px 8px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s;
-    height: 64px;
-    /* Fixed height for consistency */
+    transition: background 0.2s ease;
+    height: 56px;
 }
 
 .sidebar.collapsed .library-item {
@@ -176,20 +176,20 @@
 }
 
 .library-item:hover {
-    background: var(--card-hover);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .library-item.active {
-    background: var(--hover-bg, rgba(255, 255, 255, 0.1));
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .library-img-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 4px;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
     overflow: hidden;
     flex-shrink: 0;
-    background: #282828;
+    background: rgba(255, 255, 255, 0.03);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -203,13 +203,12 @@
 
 /* Liked Songs Special Style */
 
-
 .downloads-wrapper {
     color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .liked-heart {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--text-main);
 }
 
@@ -217,32 +216,32 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    /* Enable ellipsis */
     opacity: 1;
     transition: opacity 0.2s;
 }
 
 .sidebar.collapsed .library-text {
     display: none;
-    /* Hide text in collapsed mode */
 }
 
 .library-title {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 550;
     color: var(--text-main);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    letter-spacing: -0.01em;
 }
 
 .library-subtitle {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-dim);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    opacity: 0.75;
 }
 
 .library-item:hover .library-title {
@@ -250,29 +249,29 @@
 }
 
 .library-item:hover .library-subtitle {
-    color: var(--text-main);
+    opacity: 0.9;
 }
 
 /* Skeletons */
 .skeleton-item {
-    height: 64px;
+    height: 56px;
     width: 100%;
-    background: var(--card-hover);
-    border-radius: 6px;
-    animation: pulse 1.5s infinite;
+    background: rgba(255, 255, 255, 0.025);
+    border-radius: 8px;
+    animation: pulse 1.8s infinite;
 }
 
 @keyframes pulse {
     0% {
-        opacity: 0.5;
+        opacity: 0.4;
     }
 
     50% {
-        opacity: 0.8;
+        opacity: 0.7;
     }
 
     100% {
-        opacity: 0.5;
+        opacity: 0.4;
     }
 }
 
@@ -302,8 +301,8 @@
 
 .sidebar-context-menu {
     border: 1px solid var(--glass-border);
-    background: rgba(15, 13, 20, 0.95);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    background: rgba(12, 12, 16, 0.95);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
 .sidebar-context-menu .lune-dropdown-item {
@@ -324,19 +323,19 @@
 
 /* Compact Mode Overrides */
 [data-density="compact"] .library-item {
-    height: 48px;
+    height: 44px;
     padding: 4px 8px;
 }
 
 [data-density="compact"] .library-img-wrapper {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
 }
 
 [data-density="compact"] .library-title {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 [data-density="compact"] .library-subtitle {
-    font-size: 12px;
+    font-size: 11px;
 }

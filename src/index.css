@@ -1,35 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --bg-primary: #050608;
-  --bg-surface: #080a10;
+  --bg-primary: #06080c;
+  --bg-surface: #0a0c12;
 
-  /* Deep Bluish Slate Mesh Gradient */
-  --bg-mesh: radial-gradient(at 0% 0%, rgba(30, 45, 65, 0.4) 0, transparent 40%),
-    radial-gradient(at 100% 0%, rgba(20, 35, 55, 0.4) 0, transparent 40%),
-    radial-gradient(at 50% 100%, rgba(40, 55, 75, 0.3) 0, transparent 50%);
+  /* Muted, deep ambient mesh — barely visible, keeps the UI feeling spatial */
+  --bg-mesh: radial-gradient(at 0% 0%, rgba(25, 38, 58, 0.3) 0, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(18, 30, 48, 0.25) 0, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(30, 42, 60, 0.18) 0, transparent 55%);
 
-  --glass-bg: rgba(16, 20, 26, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.04);
-  --glass-blur: blur(24px);
+  --glass-bg: rgba(14, 16, 22, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.035);
+  --glass-blur: blur(32px);
 
-  --text-main: #ffffff;
-  --text-main-rgb: 255, 255, 255;
-  --text-dim: #94a3b8;
-  --text-dim-rgb: 148, 163, 184;
+  --text-main: #f0f0f2;
+  --text-main-rgb: 240, 240, 242;
+  --text-dim: #8892a4;
+  --text-dim-rgb: 136, 146, 164;
   --accent: #0077f9;
   --accent-main: #0077f9;
   --accent-rgb: 0, 119, 249;
-  --accent-soft: rgba(var(--accent-rgb), 0.2);
-  --accent-glow: 0 0 6px rgba(var(--accent-rgb), 0.2);
-  --accent-glow-strong: 0 0 12px rgba(var(--accent-rgb), 0.25);
+  --accent-soft: rgba(var(--accent-rgb), 0.15);
+  --accent-glow: 0 0 6px rgba(var(--accent-rgb), 0.15);
+  --accent-glow-strong: 0 0 12px rgba(var(--accent-rgb), 0.2);
 
   --card-bg: rgba(255, 255, 255, 0.02);
-  --card-hover: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(255, 255, 255, 0.03);
+  --card-hover: rgba(255, 255, 255, 0.045);
+  --card-border: rgba(255, 255, 255, 0.035);
 
-  --shadow-luxe: 0 20px 50px rgba(0, 0, 0, 0.5);
-  --hover-bg: rgba(255, 255, 255, 0.08);
+  --shadow-luxe: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --hover-bg: rgba(255, 255, 255, 0.06);
 
   /* Central Z-Index Map */
   --z-below: -10;
@@ -133,10 +133,10 @@ button {
   }
 }
 
-/* Minimalist Scrollbar */
+/* Minimal Scrollbar — almost invisible until hovered */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -144,12 +144,12 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 ::-webkit-scrollbar-corner {
@@ -270,43 +270,43 @@ button {
 /* Standard Navigation Buttons (Back/Home) */
 .lune-nav-btn-container {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-shrink: 0;
   -webkit-app-region: no-drag;
 }
 
 .lune-nav-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.03);
-  color: #b3b3b3;
+  color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .lune-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .lune-nav-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Top Global Nav */
+/* Top Global Nav — clean, near-invisible chrome */
 .top-global-nav {
   position: sticky;
   top: 0;
   width: 100%;
-  height: 80px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,7 +316,7 @@ button {
   background: transparent;
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.025);
 }
 
 .top-global-nav > * {
