@@ -90,8 +90,9 @@
 }
 
 .account-logout-btn:hover {
-    background: var(--hover-bg, rgba(var(--text-main-rgb), 0.1));
-    border-color: rgba(var(--text-main-rgb), 0.2);
+    background: rgba(231, 76, 60, 0.12);
+    border-color: rgba(231, 76, 60, 0.3);
+    color: #ff6b6b;
 }
 
 .settings-disclaimer {
